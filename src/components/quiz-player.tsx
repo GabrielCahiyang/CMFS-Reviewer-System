@@ -372,7 +372,7 @@ export function QuizPlayer() {
           Save & exit
         </button>
         <span
-          className={`flex items-center gap-1.5 text-[10px] ${dirty ? 'text-warning' : 'text-subtle'}`}
+          className={`flex items-center gap-1.5 text-[10px] ${dirty && !busy ? 'text-warning' : 'text-subtle'}`}
           aria-live="polite"
         >
           {busy ? (
@@ -435,10 +435,10 @@ export function QuizPlayer() {
         </span>
       </div>
       <Progress value={(answeredCount / session.questionIds.length) * 100} className="h-2" />
-      {(error || dirty) && (
+      {error && !busy && (
         <div role="alert" className="rounded-xl border border-danger/20 bg-danger-soft p-4">
           <p className="text-xs leading-6 text-danger">
-            {error || 'This change has not been saved yet.'}
+            {error}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button busy={busy} className="min-h-8 text-[11px]" onClick={() => save(session)}>
