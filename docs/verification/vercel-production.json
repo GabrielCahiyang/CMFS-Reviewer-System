@@ -1,6 +1,33 @@
 {
-  "checkedAt": "2026-10-24T13:40:44.244Z",
-  "scope": "Local production standalone build; not a remote Vercel release or authenticated production save verification.",
+  "checkedAt": "2026-10-24T14:00:14.533Z",
+  "scope": "Local standalone production runtime and complete server trace validation. Remote Vercel packaging/release and authenticated production saves are not verified.",
+  "packaging": {
+    "traces": 8,
+    "checked": 3018
+  },
+  "manifests": [
+    {
+      "route": "account",
+      "generated": true,
+      "bytes": 371
+    },
+    {
+      "route": "admin",
+      "generated": true,
+      "bytes": 367
+    },
+    {
+      "route": "events",
+      "generated": true,
+      "bytes": 369
+    },
+    {
+      "route": "sessions",
+      "generated": true,
+      "bytes": 373
+    }
+  ],
+  "clientAssetsChecked": 16,
   "results": [
     {
       "route": "/",
@@ -162,5 +189,22 @@
       "status": 404,
       "ok": true
     }
-  ]
+  ],
+  "makeTargetSwitch": {
+    "generatedRootRemoved": true,
+    "originalFrontendRoutes": [
+      {
+        "route": "/login",
+        "status": 200
+      },
+      {
+        "route": "/register",
+        "status": 200
+      },
+      {
+        "route": "/forgot-password",
+        "status": 200
+      }
+    ]
+  }
 }

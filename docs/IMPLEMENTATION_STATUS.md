@@ -26,6 +26,7 @@
 - [x] Local dev reload loop: Turbopack repeatedly rebuilt with no source changes. The local dev runner now uses webpack; verified stable during settings, saving, refresh and completion.
 - [x] Standalone Vercel build passed with TypeScript enabled: 24 public static pages and four dynamic Node APIs. Local production HTTP checks passed for all pages, anonymous API rejection, favicon, unknown-route 404 and excluded Payload routes. See `verification/vercel-production.json`.
 - [x] 41 unit tests passed after adding sanitized, project-matched hosting credential validation. The production API trace contains no Payload or Firebase CLI dependencies.
+- [x] Corrected the later Vercel packaging failure: use standard root-app filenames instead of custom extensions. Next now generates all four required API client-reference manifests. All 3,018 file references across eight server traces exist; every standalone build now checks this before success. Forty-three unit tests and production HTTP/asset checks passed. See `verification/vercel-production.json`.
 - [ ] Configure and verify Vercel environment variables, trusted Firebase server identity, actual remote deployment and authenticated production saves. See [Vercel deployment](VERCEL_DEPLOYMENT.md). No remote release or hosted environment changes were performed by the standalone build fix.
 
 ## Verify production delivery — pending

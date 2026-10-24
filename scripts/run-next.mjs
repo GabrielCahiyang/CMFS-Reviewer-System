@@ -1,11 +1,13 @@
 import { spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import { prepareVercel } from './prepare-vercel.mjs'
+import { clearVercel, prepareVercel } from './prepare-vercel.mjs'
+import { verifyBuildTraces } from './verify-build-traces.mjs'
 const command = process.argv[2]
 const vercel = command.endsWith(':vercel') || process.env.VERCEL === '1'
 const operation = command.replace(':vercel', '')
 const env = { ...process.env, ...(vercel ? { CFMS_BUILD_TARGET: 'vercel' } : {}) }
-if (vercel && operation === 'build') await prepareVercel()
+if (vercel && ['build', 'start', 'dev'].includes(operation)) await prepareVercel()
+if (!vercel) await clearVercel()
 let cli = 'node_modules/next/dist/bin/next'
 if (operation === 'build' && !vercel) {
   const payloadPackage = JSON.parse(readFileSync('node_modules/payload/package.json','utf8'))
@@ -19,5 +21,16 @@ const args = operation === 'dev'
   : operation === 'start' ? ['start', '--port', process.env.PORT || '3000', '--hostname', '0.0.0.0']
   : [operation]
 const child = spawn(process.execPath, ['--no-deprecation',cli,...args], { stdio: 'inherit', env })
-child.on('exit',(code) => { process.exitCode = code ?? 1 })
-child.on('error', () => { console.error('Could not start the framework CLI.'); process.exitCode = 1 })
+process.exitCode = await new Promise(resolve => {
+  child.on('close', code => resolve(code ?? 1))
+  child.on('error', () => { console.error('Could not start the framework CLI.'); resolve(1) })
+})
+if (process.exitCode === 0 && vercel && operation === 'build') {
+  try {
+    const result = await verifyBuildTraces()
+    console.log(`Packaging check passed: ${result.checked} file references across ${result.traces} server traces.`)
+  } catch (error) {
+    console.error(error.message)
+    process.exitCode = 1
+  }
+}

@@ -46,9 +46,13 @@ $env:PORT = '3100'
 pnpm run start:vercel
 ```
 
-The standalone build uses webpack, checks TypeScript, and writes `.next-vercel`, keeping the local Make development cache separate. Stop the temporary production server with Ctrl+C after checking it.
+The standalone build uses webpack, checks TypeScript, writes `.next-vercel`, and verifies that every file in the production server traces actually exists. Missing files fail the build before Vercel packaging. The local Make development cache remains separate. Stop the temporary production server with Ctrl+C after checking it.
 
-`scripts/prepare-vercel.mjs` creates ignored `*.vercel.ts` / `*.vercel.tsx` entry points for the existing frontend and four `/api/study/*` routes. Next's custom page extensions select these for Vercel; ordinary Make builds keep their original entry points. UI and API implementations are shared, so there is no second copy of the study app to maintain. `/study-admin` is included; Figma's `/admin` and Payload APIs are not part of the standalone deployment.
+`scripts/prepare-vercel.mjs` creates a Git-ignored root `app/` directory containing conventional `page.tsx`, `layout.tsx`, and `route.ts` entry points that re-export the real frontend and four `/api/study/*` implementations from `src/`. Next prioritizes this root app directory for Vercel. Custom page extensions are not used: they caused API traces to reference absent `route_client-reference-manifest.js` files during Vercel packaging.
+
+The generated directory has an ownership marker and file allowlist. Ordinary Make development/build commands remove only that generated directory and use the original `src/app/` tree; an unowned directory, edited entry point, unexpected file or symlink is preserved and causes a clear error. Legacy generated suffix entry points are removed only when their content matches the previous generator. No Payload-managed source is edited or moved.
+
+UI and API implementations remain shared, so there is no second copy of the study app to maintain. `/study-admin` is included; Figma's `/admin` and Payload APIs are not part of the standalone deployment. Use the repository's build/start/dev scripts so each target selects the correct entry points.
 
 After pushing the changes and deploying, check login, password reset, custom question selection, a saved/resumed/submitted session, results, and administrator authorization. A passing local production build does not prove that the remote environment has credentials or that a deployment succeeded.
 

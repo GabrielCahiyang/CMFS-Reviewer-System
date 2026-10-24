@@ -84,7 +84,6 @@ export default async function config() {
       ...nextConfig,
       output: undefined,
       distDir: '.next-vercel',
-      pageExtensions: ['vercel.tsx', 'vercel.ts'],
       typescript: { ignoreBuildErrors: false },
       env: {
         NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ||
@@ -96,6 +95,8 @@ export default async function config() {
       },
     } satisfies NextConfig
   }
+  const { clearVercel } = await import('./scripts/prepare-vercel.mjs')
+  await clearVercel()
   const { withPayload } = await import('@payloadcms/next/withPayload')
   return withPayload(nextConfig, { devBundleServerPackages: false })
 }
