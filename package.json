@@ -1,0 +1,74 @@
+{
+  "dependencies": {
+    "@payloadcms/figma": "1.0.0-beta.1",
+    "@payloadcms/next": "4.0.0-beta.3",
+    "@payloadcms/plugin-cloud-storage": "4.0.0-beta.3",
+    "@payloadcms/plugin-mcp": "4.0.0-beta.3",
+    "@payloadcms/richtext-lexical": "4.0.0-beta.3",
+    "@payloadcms/translations": "4.0.0-beta.3",
+    "@payloadcms/ui": "4.0.0-beta.3",
+    "firebase": "^13.1.0",
+    "firebase-admin": "^14.5.0",
+    "graphql": "^16.8.1",
+    "html-react-parser": "^5.2.10",
+    "lucide-react": "^1.61.0",
+    "mammoth": "^1.13.0",
+    "monaco-editor": "0.55.1",
+    "next": "16.4.2",
+    "payload": "4.0.0-beta.3",
+    "pdfjs-dist": "^6.4.299",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.4"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "24.12.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "firebase-tools": "^15.34.1",
+    "oxfmt": "^0.73.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=24.22.1",
+    "pnpm": "^9 || ^10 || ^11"
+  },
+  "name": "figma-make-app",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  },
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/run-next.mjs dev",
+    "build": "node scripts/run-next.mjs build",
+    "start": "node scripts/run-next.mjs start",
+    "format": "oxfmt",
+    "generate:importmap": "NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "NODE_OPTIONS=--no-deprecation payload generate:types",
+    "payload": "NODE_OPTIONS=--no-deprecation payload",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import ./tests/register.mjs --test tests/*.test.mjs",
+    "test:rules": "firebase emulators:exec --only database --project demo-cfms \"node --test tests/rules.integration.mjs\"",
+    "seed:extract": "node scripts/extract-supplied-reviewers.mjs",
+    "seed:validate": "node scripts/validate-question-banks.mjs",
+    "seed:preview": "node scripts/seed-realtime-database.mjs preview",
+    "seed:apply": "node scripts/seed-realtime-database.mjs apply",
+    "seed:verify": "node scripts/seed-realtime-database.mjs verify",
+    "seed:rollback": "node scripts/seed-realtime-database.mjs rollback",
+    "admin:claim": "node scripts/admin-claim.mjs",
+    "analytics:reconcile": "node --import ./tests/register.mjs scripts/reconcile-analytics.mjs",
+    "privacy:purge": "node scripts/privacy-purge.mjs",
+    "rules:preview": "node scripts/merge-rules.mjs"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

@@ -1,0 +1,40 @@
+# Implementation status
+
+24 October 2026, Asia/Manila. All six supplied sources are imported into the live Realtime Database. See [source import and test results](SOURCE_IMPORT_REPORT.md).
+
+## Implemented locally
+
+- [x] Git-ignored `.env`; Firebase reads public configuration without embedded fallbacks.
+- [x] Firebase-driven student UI, concise copy, provenance/version-aware question loading, archived session results and category-scoped mistake lookup.
+- [x] Trusted session saves: server field allowlists, revision conflicts, pinned definitions, server time and grading.
+- [x] Authenticated/rate-limited/idempotent telemetry, focused listeners and paged older history.
+- [x] Claim-protected admin reports, daily summaries, paged events/directory, student scores/timeline, question insights and CSV exports.
+- [x] Conservative extraction, private raw references, QA gates, dry-run/diff/backup, atomic versioned publish, read-back verification and rollback.
+- [x] Candidate rules, merge tooling, claim assignment/revocation, reconciliation and retention commands.
+- [x] Privacy notice and own-data export.
+
+## Checks
+
+- [x] 40 unit tests passed, including deterministic dynamic formats, exact custom selection and trusted scoring.
+- [x] TypeScript passed after implementation.
+- [x] 5 local database security tests passed.
+- [x] Auth+Database emulator server workflow passed: saves/regrading, immutable completion, idempotent start/completion and admin authorization.
+- [x] All 24 frontend routes returned development HTTP 200. See `docs/verification/preview-routes.json`; this is not production route-table verification.
+- [x] Browser: local student login, session settings, MCQ green/red feedback, true/false, identification alternatives, unordered enumeration, completion/results, and student rejection from admin reports. Test fixtures were local emulators only.
+- [x] Dynamic formats: the same source question can be presented in every answer format; custom selection shows original numbers, full text and previews. Twelve live HTTP workflows passed across six categories (`verification/dynamic-format-flow.json`).
+- [x] Live browser: selected original questions 1 and 3, converted to true/false, saved, deliberately refreshed/resumed, completed and scored 100%. Screenshots are in `screenshots/dynamic-question-*.png`.
+- [x] Local dev reload loop: Turbopack repeatedly rebuilt with no source changes. The local dev runner now uses webpack; verified stable during settings, saving, refresh and completion.
+
+## Verify production delivery — pending
+
+- [x] Receive/extract all six original files; preserve exact counts and visually inspect highlighted keys. Generated content remains explicitly flagged pending instructor review.
+- [ ] Provision trusted Firebase server identity on compatible hosting; web configuration alone cannot authorize live admin/seeding.
+- [ ] Inspect/merge/test/deploy actual live rules without replacing unrelated AttendIt rules.
+- [ ] Choose intended administrator UID and assign the claim through trusted tooling.
+- [x] Apply reviewed import; record source counts/coverage/flags/import ID/hashes and verify read-back: 465 records, all six banks.
+- [ ] Configure 90-day raw-event retention and reconciliation schedules.
+- [ ] Build in the connected Make lifecycle: local `pnpm build` stops at missing Figma environment identity.
+- [ ] Run `figma make verify-deploy`, inspect route table and require static public shells. Figma CLI is absent locally.
+- [ ] Visit every generated production route; verify actual Auth domains, cross-device saves, imported types, reports and requested images.
+
+Live seed/read-back and all six full-bank HTTP workflows passed with real Firebase authentication. The disposable test account and sessions were removed. Database rules, administrator claims and production publication were not changed. Required framework skills are unavailable locally; Payload source, generated types and managed routes were preserved.

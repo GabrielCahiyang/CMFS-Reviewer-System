@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap');
+/* Scan application source only. Generated build/test/import files must not
+   invalidate Tailwind and trigger another browser reload when they change. */
+@import 'tailwindcss' source('../../');
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Manrope', sans-serif;
+  --color-primary: #6155d9;
+  --color-primary-hover: #5144c7;
+  --color-primary-soft: #f0edff;
+  --color-on-primary: #ffffff;
+  --color-ink: #252738;
+  --color-subtle: #737582;
+  --color-faint: #a5a6b2;
+  --color-line: #eaeaf0;
+  --color-muted: #f3f3f8;
+  --color-canvas: #f8f9fc;
+  --color-surface: #ffffff;
+  --color-success: #208260;
+  --color-success-soft: #eaf8f1;
+  --color-danger: #ba3f50;
+  --color-danger-soft: #fff0f1;
+  --color-warning: #946820;
+  --color-warning-soft: #fff7e7;
+  --color-violet-soft: #f3effd;
+  --color-violet-ink: #9266cc;
+  --color-blue-soft: #edf4ff;
+  --color-blue-ink: #588cde;
+  --color-orange-soft: #fff1e7;
+  --color-orange-ink: #d4945b;
+  --color-green-soft: #eaf6f1;
+  --color-green-ink: #56a68b;
+  --color-rose-soft: #fceff3;
+  --color-rose-ink: #d27d98;
+}
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+  --color-ink: #ebebf5;
+  --color-subtle: #a4a5ba;
+  --color-faint: #75778f;
+  --color-line: #303145;
+  --color-muted: #28293b;
+  --color-canvas: #191a27;
+  --color-surface: #222332;
+  --color-primary: #9b8af8;
+  --color-primary-hover: #8977e7;
+  --color-primary-soft: #322d4d;
+  --color-on-primary: #201c35;
+  --color-success: #6cc4a2;
+  --color-danger: #ef8798;
+  --color-warning: #e3b96d;
+  --color-success-soft: #213a33;
+  --color-danger-soft: #412b36;
+  --color-warning-soft: #3b3427;
+  --color-violet-soft: #352c45;
+  --color-blue-soft: #27344c;
+  --color-orange-soft: #40342d;
+  --color-green-soft: #273b35;
+  --color-rose-soft: #402d3a;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}
+button {
+  cursor: pointer;
+}
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-2deg);
+  }
+}
+@keyframes cardFlip {
+  from {
+    transform: rotateY(-12deg);
+    opacity: 0.6;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+.page-enter {
+  animation: enter 0.35s ease both;
+}
+.finance-float {
+  animation: float 6s ease-in-out infinite;
+}
+.flip-enter {
+  animation: cardFlip 0.35s ease both;
+}
+.hero-pattern {
+  background-image: radial-gradient(var(--color-primary) 0.7px, transparent 0.7px);
+  background-size: 14px 14px;
+}
+.figma-custom-code-fragment {
+  display: contents;
+}
+.figma-bypass-link {
+  position: fixed;
+  z-index: 999;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-150%);
+  background: var(--color-primary);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+}
+.figma-bypass-link:focus {
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

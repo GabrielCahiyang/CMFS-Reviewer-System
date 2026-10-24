@@ -1,0 +1,80 @@
+{
+  "importId": "import-b992f1fbb72d7b8984aedb86",
+  "readBackVerified": true,
+  "backupPath": "private-backups/import-b992f1fbb72d7b8984aedb86-1792845176414.json",
+  "categories": [
+    {
+      "categoryId": "new-reviewer",
+      "before": 60,
+      "added": 24,
+      "total": 84,
+      "counts": {
+        "multiple-choice": 60,
+        "true-false": 8,
+        "identification": 8,
+        "enumeration": 8
+      }
+    },
+    {
+      "categoryId": "cfms-questionnaire",
+      "before": 121,
+      "added": 24,
+      "total": 145,
+      "counts": {
+        "multiple-choice": 121,
+        "true-false": 8,
+        "identification": 8,
+        "enumeration": 8
+      }
+    },
+    {
+      "categoryId": "huhuhuhu-reviewer",
+      "before": 120,
+      "added": 16,
+      "total": 136,
+      "counts": {
+        "multiple-choice": 81,
+        "true-false": 39,
+        "identification": 8,
+        "enumeration": 8
+      }
+    },
+    {
+      "categoryId": "pre-finals",
+      "before": 85,
+      "added": 16,
+      "total": 101,
+      "counts": {
+        "multiple-choice": 43,
+        "true-false": 42,
+        "identification": 8,
+        "enumeration": 8
+      }
+    },
+    {
+      "categoryId": "working-capital",
+      "before": 39,
+      "added": 24,
+      "total": 63,
+      "counts": {
+        "multiple-choice": 39,
+        "true-false": 8,
+        "identification": 8,
+        "enumeration": 8
+      }
+    },
+    {
+      "categoryId": "financial-statements",
+      "before": 64,
+      "added": 0,
+      "total": 64,
+      "counts": {
+        "multiple-choice": 12,
+        "true-false": 12,
+        "identification": 31,
+        "enumeration": 9
+      }
+    }
+  ],
+  "total": 593
+}

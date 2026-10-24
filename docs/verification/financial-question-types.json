@@ -1,0 +1,10 @@
+{
+  "importId": "import-a564737813c1ed76c9a80806",
+  "categoryId": "financial-statements",
+  "total": 64,
+  "addedMultipleChoice": 12,
+  "addedTrueFalse": 12,
+  "preservedExisting": 40,
+  "readBackVerified": true,
+  "backupPath": "private-backups/import-a564737813c1ed76c9a80806-1792844883760.json"
+}

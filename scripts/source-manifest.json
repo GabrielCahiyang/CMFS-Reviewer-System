@@ -1,0 +1,10 @@
+{
+  "sources": [
+    { "categoryId": "new-reviewer", "title": "NEW REVIEWER", "filename": "NEW REVIEWER.docx", "expectedCount": 60, "icon": "book", "color": "indigo" },
+    { "categoryId": "cfms-questionnaire", "title": "CFMS Questionnaire", "filename": "CFMS-Questionnaire (1).docx", "expectedCount": 121, "icon": "clipboard", "color": "blue" },
+    { "categoryId": "huhuhuhu-reviewer", "title": "HUHUHUHU Reviewer", "filename": "HUHUHUHU (1).docx", "icon": "layers", "color": "purple" },
+    { "categoryId": "pre-finals", "title": "Pre-Finals Practice & Recitation", "filename": "Practice-Questions-Pre-Finals_Answered_Familiar_Bisaya-English.pdf", "icon": "target", "color": "green" },
+    { "categoryId": "working-capital", "title": "Working Capital & Cash Management", "filename": "Working Capital Management and Cash Management Answers (1).pdf", "highlightedAnswers": true, "icon": "wallet", "color": "orange" },
+    { "categoryId": "financial-statements", "title": "Financial Statements Fundamentals", "filename": "basic-understanding-of-a-companys-financials (2).pdf", "referenceOnly": true, "icon": "chart", "color": "teal" }
+  ]
+}

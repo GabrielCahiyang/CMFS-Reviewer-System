@@ -1,0 +1,63 @@
+{
+  "projectId": "attendit-350c6",
+  "testedAt": "2026-10-24T12:50:03.797Z",
+  "origin": "http://localhost:3000",
+  "results": [
+    {
+      "test": "Live Firebase email/password authentication",
+      "passed": true
+    },
+    {
+      "test": "cfms-questionnaire: start, save all 145 answers, resume, submit and score",
+      "passed": true,
+      "questions": 145,
+      "score": 121
+    },
+    {
+      "test": "financial-statements: start, save all 64 answers, resume, submit and score",
+      "passed": true,
+      "questions": 64,
+      "score": 0
+    },
+    {
+      "test": "huhuhuhu-reviewer: start, save all 136 answers, resume, submit and score",
+      "passed": true,
+      "questions": 136,
+      "score": 120
+    },
+    {
+      "test": "new-reviewer: start, save all 84 answers, resume, submit and score",
+      "passed": true,
+      "questions": 84,
+      "score": 58
+    },
+    {
+      "test": "pre-finals: start, save all 101 answers, resume, submit and score",
+      "passed": true,
+      "questions": 101,
+      "score": 82
+    },
+    {
+      "test": "working-capital: start, save all 63 answers, resume, submit and score",
+      "passed": true,
+      "questions": 63,
+      "score": 31
+    },
+    {
+      "test": "Authenticated export and all six persisted sessions",
+      "passed": true
+    },
+    {
+      "test": "Student blocked from admin API",
+      "passed": true
+    },
+    {
+      "test": "Anonymous account export rejected",
+      "passed": true
+    },
+    {
+      "test": "Disposable live account and its study sessions removed",
+      "passed": true
+    }
+  ]
+}

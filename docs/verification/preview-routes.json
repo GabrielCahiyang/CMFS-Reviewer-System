@@ -1,0 +1,127 @@
+{
+  "origin": "http://localhost:3000",
+  "checkedAt": "2026-10-24T11:57:37.499Z",
+  "scope": "Development HTTP rendering. Authenticated browser workflows tested separately; this is not production delivery verification.",
+  "results": [
+    {
+      "route": "/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/dashboard",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/flashcards",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/mistakes",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/bookmarks",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/history",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/profile",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/settings",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/login",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/register",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/forgot-password",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/study",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/results",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/study-admin",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/study-admin/students",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/study-admin/activity",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/study-admin/questions",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/new-reviewer",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/cfms-questionnaire",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/huhuhuhu-reviewer",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/pre-finals",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/working-capital",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "route": "/categories/financial-statements",
+      "status": 200,
+      "ok": true
+    }
+  ]
+}
