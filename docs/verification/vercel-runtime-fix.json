@@ -1,0 +1,70 @@
+{
+  "checkedAt": "2026-10-24T14:45:08.728Z",
+  "scope": "Local production server with synchronous require(esm) disabled. Hosted Vercel release and real signed-in production saves remain unverified.",
+  "originalError": "ERR_REQUIRE_ESM: jwks-rsa synchronously requiring jose",
+  "unitTestsPassed": 46,
+  "runtimeFlag": "--no-experimental-require-module",
+  "signingKeyConversionAndSignatureChecks": true,
+  "publicPages": 24,
+  "clientAssets": 16,
+  "packaging": {
+    "traces": 8,
+    "checked": 3018
+  },
+  "liveSessionIndex": {
+    "path": "cfms/users/$uid/sessions",
+    "index": "updatedAt",
+    "appliedAndReadBack": true,
+    "existingPermissionsPreserved": true
+  },
+  "apiResults": [
+    {
+      "route": "/api/study/sessions",
+      "case": "anonymous",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/sessions",
+      "case": "malformed token",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/events",
+      "case": "anonymous",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/events",
+      "case": "malformed token",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/account",
+      "case": "anonymous",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/account",
+      "case": "malformed token",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/admin",
+      "case": "anonymous",
+      "status": 401,
+      "json": true
+    },
+    {
+      "route": "/api/study/admin",
+      "case": "malformed token",
+      "status": 401,
+      "json": true
+    }
+  ]
+}

@@ -16,3 +16,5 @@ supportedArchitectures:
   libc:
     - current
     - glibc
+patchedDependencies:
+  jwks-rsa@4.1.0: patches/jwks-rsa@4.1.0.patch

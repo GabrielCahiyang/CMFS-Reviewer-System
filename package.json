@@ -60,6 +60,7 @@
     "payload": "NODE_OPTIONS=--no-deprecation payload",
     "typecheck": "tsc --noEmit",
     "test": "node --import ./tests/register.mjs --test tests/*.test.mjs",
+    "verify:server-runtime": "node --no-experimental-require-module scripts/verify-server-runtime.mjs",
     "test:rules": "firebase emulators:exec --only database --project demo-cfms \"node --test tests/rules.integration.mjs\"",
     "seed:extract": "node scripts/extract-supplied-reviewers.mjs",
     "seed:validate": "node scripts/validate-question-banks.mjs",

@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { clearVercel, prepareVercel } from './prepare-vercel.mjs'
 import { verifyBuildTraces } from './verify-build-traces.mjs'
@@ -27,6 +27,7 @@ process.exitCode = await new Promise(resolve => {
 })
 if (process.exitCode === 0 && vercel && operation === 'build') {
   try {
+    execFileSync(process.execPath, ['--no-experimental-require-module', 'scripts/verify-server-runtime.mjs'], { stdio: 'inherit' })
     const result = await verifyBuildTraces()
     console.log(`Packaging check passed: ${result.checked} file references across ${result.traces} server traces.`)
   } catch (error) {

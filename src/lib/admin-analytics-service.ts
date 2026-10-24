@@ -1,5 +1,6 @@
 'use client'
 import { firebaseServices } from './firebase'
+import { readApiResponse } from './api-response'
 
 export async function adminReport<T>(params: Record<string, string | number>, signal?: AbortSignal): Promise<T> {
   const user = firebaseServices().auth.currentUser
@@ -8,9 +9,7 @@ export async function adminReport<T>(params: Record<string, string | number>, si
   const response = await fetch(`/api/study/admin?${query}`, {
     headers: { Authorization: `Bearer ${await user.getIdToken()}` }, cache: 'no-store', signal,
   })
-  const data = await response.json()
-  if (!response.ok) throw new Error(data.error || 'The report could not be loaded.')
-  return data as T
+  return readApiResponse<T>(response, 'The report could not be loaded.')
 }
 
 export function downloadCsv<T extends object>(filename: string, rows: T[]) {

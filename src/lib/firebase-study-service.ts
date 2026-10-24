@@ -1,6 +1,7 @@
 import { onValue, ref, runTransaction, set, update, query, orderByChild, limitToLast, endBefore, get } from 'firebase/database'
 import { firebaseServices } from './firebase'
 import { StudySession, UserData } from './study-models'
+import { readApiResponse } from './api-response'
 
 export function listenToPath<T>(
   path: string,
@@ -44,8 +45,8 @@ export async function saveSession(uid: string, session: StudySession, expectedRe
   const user = firebaseServices().auth.currentUser
   if (!user || user.uid !== uid || session.revision !== expectedRevision+1) throw new Error('Invalid save request.')
   const response = await fetch('/api/study/sessions', { method:'POST',headers:{ Authorization:`Bearer ${await user.getIdToken()}`,'Content-Type':'application/json' },body:JSON.stringify(session),signal:AbortSignal.timeout(20000) })
-  const result = await response.json()
-  if (!response.ok) throw new Error(result.error || 'Your session could not be saved.')
+  const result = await readApiResponse<{ session: StudySession }>(response, 'Your session could not be saved.')
+  if (!result.session || typeof result.session !== 'object') throw new Error('Your session could not be saved. Please try again.')
   return { ...result.session, answers: result.session.answers ?? {} } as StudySession
 }
 

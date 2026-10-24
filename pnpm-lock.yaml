@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  jwks-rsa@4.1.0:
+    hash: 8f4a58741a8a8b23d18ed5b9e99402265cbc20bf8ab1042186e2c02e95623160
+    path: patches/jwks-rsa@4.1.0.patch
+
 importers:
 
   .:
@@ -8165,7 +8170,7 @@ snapshots:
       fast-deep-equal: 3.1.3
       google-auth-library: 11.3.1(supports-color@10.2.2)
       jsonwebtoken: 9.0.3
-      jwks-rsa: 4.1.0(supports-color@10.2.2)
+      jwks-rsa: 4.1.0(patch_hash=8f4a58741a8a8b23d18ed5b9e99402265cbc20bf8ab1042186e2c02e95623160)(supports-color@10.2.2)
     optionalDependencies:
       '@google-cloud/firestore': 9.4.0(supports-color@10.2.2)
       '@google-cloud/storage': 8.4.0(supports-color@10.2.2)
@@ -8919,7 +8924,7 @@ snapshots:
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
 
-  jwks-rsa@4.1.0(supports-color@10.2.2):
+  jwks-rsa@4.1.0(patch_hash=8f4a58741a8a8b23d18ed5b9e99402265cbc20bf8ab1042186e2c02e95623160)(supports-color@10.2.2):
     dependencies:
       '@types/jsonwebtoken': 9.0.10
       debug: 4.4.3(supports-color@10.2.2)

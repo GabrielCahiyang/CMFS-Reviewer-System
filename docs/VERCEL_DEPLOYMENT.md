@@ -48,6 +48,14 @@ pnpm run start:vercel
 
 The standalone build uses webpack, checks TypeScript, writes `.next-vercel`, and verifies that every file in the production server traces actually exists. Missing files fail the build before Vercel packaging. The local Make development cache remains separate. Stop the temporary production server with Ctrl+C after checking it.
 
+### Firebase Auth cold-start compatibility
+
+Vercel's function loader rejected `jwks-rsa@4.1.0` synchronously requiring ESM-only `jose@6`, crashing the APIs before they could return JSON. The pnpm patch in `patches/jwks-rsa@4.1.0.patch` switches its signing-key and Passport dependency loads to dynamic `import()`. Authentication versions, signature verification, and the key-conversion implementation remain intact. The patch is registered in `pnpm-workspace.yaml` and recorded in `pnpm-lock.yaml`; commit all three files together. Patch line endings are fixed to LF in `.gitattributes` for consistent Windows/Linux hashes. The frozen lockfile was validated with the project's pinned pnpm 10.34.3.
+
+Every standalone build now runs `scripts/verify-server-runtime.mjs` with synchronous ESM loading disabled. It loads Firebase Auth, converts an RSA JWK, verifies a valid signature, and rejects a tampered payload without credentials or network access. This reproduces the original cold-start restriction that an ordinary local Node 24 run did not reveal. Session/report clients also handle empty or HTML error responses without exposing a JSON parser exception.
+
+The sessions query also needs an `updatedAt` index under `cfms/users/$uid/sessions`. `scripts/add-session-index.mjs` previews an index-only update; `--apply` backs up the current rules, preserves existing permissions and unrelated namespaces, applies the index and checks read-back. This index was applied to the shared live database on 24 October 2026. It changes query metadata, not the previously documented root-access policy.
+
 `scripts/prepare-vercel.mjs` creates a Git-ignored root `app/` directory containing conventional `page.tsx`, `layout.tsx`, and `route.ts` entry points that re-export the real frontend and four `/api/study/*` implementations from `src/`. Next prioritizes this root app directory for Vercel. Custom page extensions are not used: they caused API traces to reference absent `route_client-reference-manifest.js` files during Vercel packaging.
 
 The generated directory has an ownership marker and file allowlist. Ordinary Make development/build commands remove only that generated directory and use the original `src/app/` tree; an unowned directory, edited entry point, unexpected file or symlink is preserved and causes a clear error. Legacy generated suffix entry points are removed only when their content matches the previous generator. No Payload-managed source is edited or moved.
