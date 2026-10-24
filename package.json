@@ -35,7 +35,7 @@
     "typescript": "6.0.3"
   },
   "engines": {
-    "node": ">=24.22.1",
+    "node": "24.x",
     "pnpm": "^9 || ^10 || ^11"
   },
   "name": "figma-make-app",
@@ -47,10 +47,13 @@
     ]
   },
   "private": true,
+  "packageManager": "pnpm@10.34.3",
   "scripts": {
     "dev": "node scripts/run-next.mjs dev",
     "build": "node scripts/run-next.mjs build",
+    "build:vercel": "node scripts/run-next.mjs build:vercel",
     "start": "node scripts/run-next.mjs start",
+    "start:vercel": "node scripts/run-next.mjs start:vercel",
     "format": "oxfmt",
     "generate:importmap": "NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "NODE_OPTIONS=--no-deprecation payload generate:types",

@@ -24,6 +24,9 @@
 - [x] Dynamic formats: the same source question can be presented in every answer format; custom selection shows original numbers, full text and previews. Twelve live HTTP workflows passed across six categories (`verification/dynamic-format-flow.json`).
 - [x] Live browser: selected original questions 1 and 3, converted to true/false, saved, deliberately refreshed/resumed, completed and scored 100%. Screenshots are in `screenshots/dynamic-question-*.png`.
 - [x] Local dev reload loop: Turbopack repeatedly rebuilt with no source changes. The local dev runner now uses webpack; verified stable during settings, saving, refresh and completion.
+- [x] Standalone Vercel build passed with TypeScript enabled: 24 public static pages and four dynamic Node APIs. Local production HTTP checks passed for all pages, anonymous API rejection, favicon, unknown-route 404 and excluded Payload routes. See `verification/vercel-production.json`.
+- [x] 41 unit tests passed after adding sanitized, project-matched hosting credential validation. The production API trace contains no Payload or Firebase CLI dependencies.
+- [ ] Configure and verify Vercel environment variables, trusted Firebase server identity, actual remote deployment and authenticated production saves. See [Vercel deployment](VERCEL_DEPLOYMENT.md). No remote release or hosted environment changes were performed by the standalone build fix.
 
 ## Verify production delivery — pending
 

@@ -171,9 +171,9 @@ Recorded verification includes 40 passing unit tests, TypeScript checks, six ful
 
 ## Production status
 
-Local implementation and live Firebase workflow checks are complete. Production publication remains unverified.
+The repository supports a separate Next.js + Firebase build for Vercel. See [Vercel deployment](docs/VERCEL_DEPLOYMENT.md) for the checked-in build settings and required public/server environment variables. Run `pnpm run build:vercel` to build and `pnpm run start:vercel` to test it locally. Production publication remains unverified until the deployed environment is checked.
 
-- Build through the connected Figma Make lifecycle using `pnpm build`, then run `figma make verify-deploy` and inspect/visit the generated routes. This exported checkout lacks the platform identity and Figma CLI needed for that verification. Preserve the Payload/Figma configuration and managed routes.
+- For Figma Make publication, build through the connected Make lifecycle using `pnpm build`, then run `figma make verify-deploy` and inspect/visit the generated routes. This exported checkout lacks the platform identity and Figma CLI needed for Make verification. The standalone Vercel target preserves the Payload/Figma configuration and managed routes.
 - Provision a trusted server identity, authorized Auth domains, and scheduled retention/reconciliation jobs on compatible Node hosting.
 - At the last inspection, the shared live database had root `.read: true` and `.write: true`. API authorization does not protect against direct database access under those rules. Review shared AttendIt access before changing them. `firebase.database.rules.json` is a candidate and must not be deployed wholesale; follow the merge/review procedure in [FIREBASE.md](FIREBASE.md).
 

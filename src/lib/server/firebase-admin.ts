@@ -1,10 +1,22 @@
 import 'server-only'
-import { applicationDefault, getApps, initializeApp } from 'firebase-admin/app'
+import { applicationDefault, cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getDatabase } from 'firebase-admin/database'
 import { createRequire } from 'node:module'
 
 function serverCredential() {
+  // Optional Vercel/Node hosting credential. Store the entire service-account
+  // JSON as a private environment variable, never a NEXT_PUBLIC_* value.
+  if (process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT_JSON) {
+    try {
+      const account = JSON.parse(process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT_JSON)
+      if (account.project_id !== process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)
+        throw new Error('Project mismatch')
+      return cert(account)
+    } catch {
+      throw new Error('Invalid Firebase server credential. Check the private hosting environment variable.')
+    }
+  }
   // Local development can reuse an explicitly enabled, already signed-in Firebase CLI.
   // Production always uses its attached Application Default Credential identity.
   if (process.env.NODE_ENV === 'development' && process.env.CFMS_USE_FIREBASE_CLI === 'true') {

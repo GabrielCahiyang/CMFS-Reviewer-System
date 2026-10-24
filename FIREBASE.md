@@ -10,6 +10,8 @@ The supplied web configuration cannot authorize administrator operations. The No
 
 Local development also supports `CFMS_USE_FIREBASE_CLI=true`, explicitly enabled in this checkout. It reuses the existing Firebase CLI sign-in in memory without copying credentials. The same flag enables CLI-backed trusted import scripts. This fallback is disabled in production; production still needs an attached trusted identity.
 
+For the standalone Vercel target, the server also accepts `FIREBASE_ADMIN_SERVICE_ACCOUNT_JSON` as a private environment variable containing the complete service-account JSON for the configured project. It is never a browser variable. See [Vercel deployment](docs/VERCEL_DEPLOYMENT.md) for build settings and configuration. Make publication keeps its original managed backend configuration.
+
 Enable Email/Password in the existing Auth project and authorize actual preview/published hostnames. Keep the supplied authDomain unchanged.
 
 ## Trust boundaries

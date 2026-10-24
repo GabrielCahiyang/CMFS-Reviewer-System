@@ -1,4 +1,3 @@
-import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -77,4 +76,26 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default async function config() {
+  if (process.env.VERCEL === '1' || process.env.CFMS_BUILD_TARGET === 'vercel') {
+    // A separate set of entry points keeps Figma-managed Payload routes in Make.
+    // The Firebase app and APIs share the same implementation in both targets.
+    return {
+      ...nextConfig,
+      output: undefined,
+      distDir: '.next-vercel',
+      pageExtensions: ['vercel.tsx', 'vercel.ts'],
+      typescript: { ignoreBuildErrors: false },
+      env: {
+        NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ||
+          (process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : process.env.VERCEL_PROJECT_PRODUCTION_URL
+              ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+              : process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
+      },
+    } satisfies NextConfig
+  }
+  const { withPayload } = await import('@payloadcms/next/withPayload')
+  return withPayload(nextConfig, { devBundleServerPackages: false })
+}

@@ -1,5 +1,8 @@
 node_modules/
 .next/
+.next-vercel/
+src/app/**/*.vercel.ts
+src/app/**/*.vercel.tsx
 out/
 dist/
 build/
