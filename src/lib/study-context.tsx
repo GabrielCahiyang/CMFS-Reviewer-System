@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { onAuthStateChanged, onIdTokenChanged, signOut, User } from 'firebase/auth'
 import { onValue, ref } from 'firebase/database'
 import { sourceCategoryTitles } from './study-categories'
@@ -24,6 +24,8 @@ import {
   UserData,
 } from './study-models'
 import { parseQuestions } from './question-schema'
+import { validateSessionInput } from './session-validation'
+import { SessionDraftQueue, sessionDraftKey, type SessionDraftRecord } from './session-draft'
 import { clearActivityQueue, keepActivityFor, flushActivity, trackEvent } from './activity-tracker'
 
 type SyncState = 'idle' | 'saving' | 'saved' | 'error'
@@ -44,6 +46,9 @@ interface StudyContextValue {
   loadQuestions: (categoryId: string, contentVersion?: string) => Promise<Question[]>
   loadOlderSessions: () => Promise<boolean>
   commitSession: (session: StudySession) => Promise<StudySession>
+  stageSession: (session: StudySession) => StudySession
+  flushSession: (id: string) => Promise<StudySession>
+  sessionSaveError: string
   toggleBookmark: (categoryId: string, questionId: string) => Promise<void>
   markCard: (categoryId: string, questionId: string, status: 'known' | 'again') => Promise<void>
   savePreferences: (preferences: Preferences) => Promise<void>
@@ -70,6 +75,95 @@ export function StudyProvider({ children }: { children: ReactNode }) {
   const [connected, setConnected] = useState<boolean | null>(null)
   const [activeSessionId, setSessionId] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+  const sessionQueues = useRef(new Map<string, SessionDraftQueue>())
+  const [saveErrors, setSaveErrors] = useState<Record<string, string>>({})
+
+  function sessionQueue(initial: StudySession, uid: string) {
+    const existing = sessionQueues.current.get(initial.id)
+    if (existing) return existing
+    const key = sessionDraftKey(uid, initial.id)
+    let restored: SessionDraftRecord | undefined
+    try {
+      const record = JSON.parse(localStorage.getItem(key) || 'null') as SessionDraftRecord | null
+      if (record?.version === 1 && Number.isInteger(record.baseRevision) && record.baseRevision >= 1 &&
+        record.draft.id === initial.id && record.draft.categoryId === initial.categoryId) {
+        validateSessionInput(record.draft)
+        if (record.sent) validateSessionInput(record.sent.draft)
+        restored = record
+      }
+    } catch { /* Ignore invalid or unavailable browser cache; never replace the cloud record. */ }
+    let confirmed = initial
+    const queue = new SessionDraftQueue(initial, {
+      send: async (draft, expectedRevision) => {
+        const saved = await saveSession(uid, { ...draft, revision: expectedRevision + 1, updatedAt: Date.now() }, expectedRevision)
+        if (firebaseServices().auth.currentUser?.uid === uid) {
+          if (saved.status === 'completed') trackEvent('session_completed', { sessionId: saved.id, categoryId: saved.categoryId }, `complete_${saved.id}`)
+          else for (const [questionId, answer] of Object.entries(saved.answers ?? {})) {
+            if (answer.status !== 'skipped' && JSON.stringify(answer) !== JSON.stringify(confirmed.answers?.[questionId]))
+              trackEvent(saved.mode === 'flashcard' ? 'flashcard_reviewed' : 'answer_submitted', { sessionId: saved.id, categoryId: saved.categoryId, questionId }, `answer_${saved.id}_${saved.revision}_${questionId}`)
+          }
+        }
+        confirmed = saved
+        return saved
+      },
+      refresh: async () => {
+        if (firebaseServices().auth.currentUser?.uid !== uid) throw new Error('Please sign in to sync your saved responses.')
+        const { get } = await import('firebase/database')
+        const snapshot = await get(ref(firebaseServices().database, `cfms/users/${uid}/sessions/${initial.id}`))
+        return snapshot.exists() ? { ...snapshot.val(), answers: snapshot.val().answers ?? {} } as StudySession : null
+      },
+      persist: (record) => {
+        try {
+          if (record) localStorage.setItem(key, JSON.stringify(record))
+          else localStorage.removeItem(key)
+        } catch { /* In-memory answers remain available if browser storage is disabled. */ }
+      },
+      change: (session) => {
+        if (firebaseServices().auth.currentUser?.uid !== uid) return
+        setData(previous => ({ ...previous, sessions: { ...previous.sessions, [session.id]: session } }))
+        setSaveErrors(previous => previous[session.id] ? { ...previous, [session.id]: '' } : previous)
+      },
+      error: (err) => {
+        if (firebaseServices().auth.currentUser?.uid === uid)
+          setSaveErrors(previous => ({ ...previous, [initial.id]: friendlyError(err) }))
+      },
+    }, restored)
+    sessionQueues.current.set(initial.id, queue)
+    return queue
+  }
+
+  function receiveSessions(sessions: Record<string, StudySession>, uid: string) {
+    return Object.fromEntries(Object.entries(sessions).map(([id, remote]) => {
+      const queue = sessionQueue(remote, uid)
+      queue.receive(remote)
+      queue.schedule()
+      return [id, queue.current]
+    }))
+  }
+
+  function stageSession(session: StudySession) {
+    if (!user) throw new Error('Please sign in before saving responses.')
+    return sessionQueue(session, user.uid).stage(session)
+  }
+
+  async function flushSession(id: string) {
+    if (!user || !data.sessions[id]) throw new Error('This session is unavailable.')
+    return sessionQueue(data.sessions[id], user.uid).flush()
+  }
+
+  useEffect(() => {
+    const retryDrafts = () => {
+      sessionQueues.current.forEach(queue => {
+        if (queue.hasPending) void queue.flush().catch(() => {})
+      })
+    }
+    window.addEventListener('online', retryDrafts)
+    return () => {
+      window.removeEventListener('online', retryDrafts)
+      sessionQueues.current.forEach(queue => queue.stop())
+      sessionQueues.current.clear()
+    }
+  }, [])
 
   useEffect(() => onIdTokenChanged(firebaseServices().auth, async (current) => {
     setIsAdmin(false)
@@ -87,11 +181,14 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('cfms-workspace-mode-v1')
       localStorage.removeItem('cfms-active-session-v1')
     } catch {
-      // Browser storage is optional. Firebase remains the only study-data source.
+      // Browser storage is optional. Confirmed records remain in Firebase.
     }
     return onAuthStateChanged(
       firebaseServices().auth,
       (current) => {
+        sessionQueues.current.forEach(queue => queue.stop())
+        sessionQueues.current.clear()
+        setSaveErrors({})
         keepActivityFor(current?.uid)
         setUser(current)
         setData(emptyUserData())
@@ -174,14 +271,18 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     stops.push(listenToRecentSessions(user.uid, (sessions) => {
       if (!active) return
       received.add('sessions')
-      setData((previous) => ({ ...previous, sessions: { ...previous.sessions, ...sessions } }))
+      const receivedSessions = receiveSessions(sessions, user.uid)
+      setData((previous) => ({ ...previous, sessions: { ...previous.sessions, ...receivedSessions } }))
       if (received.size === 5) { userReceived = true; setDataLoading(false) }
     }, failure))
     // Keep a selected older session available without listening to the whole history.
     try {
       const selected = localStorage.getItem(activeSessionKey(user.uid))
       if (selected && /^[a-zA-Z0-9_-]+$/.test(selected)) stops.push(listenToPath<StudySession>(`users/${user.uid}/sessions/${selected}`, (value) => {
-        if (active && value) setData((previous) => ({ ...previous, sessions: { ...previous.sessions, [selected]: value } }))
+        if (active && value) {
+          const receivedSessions = receiveSessions({ [selected]: value }, user.uid)
+          setData((previous) => ({ ...previous, sessions: { ...previous.sessions, ...receivedSessions } }))
+        }
       }, failure))
     } catch { /* local selection is optional */ }
     const timeout = window.setTimeout(() => {
@@ -208,7 +309,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       if (id) localStorage.setItem(activeSessionKey(user.uid), id)
       else localStorage.removeItem(activeSessionKey(user.uid))
     } catch {
-      // Only the selected session ID is cached; session contents stay in Firebase.
+      // Cloud records remain authoritative; pending responses have a separate account-scoped draft.
     }
   }
 
@@ -227,7 +328,8 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     const earliest = Object.values(data.sessions).sort((a,b) => a.updatedAt - b.updatedAt || a.id.localeCompare(b.id))[0]
     if (!earliest) return false
     const older = await olderSessions(user.uid, earliest.updatedAt, earliest.id)
-    setData((previous) => ({ ...previous, sessions: { ...older, ...previous.sessions } }))
+    const receivedSessions = receiveSessions(older ?? {}, user.uid)
+    setData((previous) => ({ ...previous, sessions: { ...receivedSessions, ...previous.sessions } }))
     return Object.keys(older ?? {}).length === 100
   }
 
@@ -342,6 +444,9 @@ export function StudyProvider({ children }: { children: ReactNode }) {
         loadQuestions,
         loadOlderSessions,
         commitSession,
+        stageSession,
+        flushSession,
+        sessionSaveError: activeSessionId ? saveErrors[activeSessionId] || '' : '',
         toggleBookmark,
         markCard,
         savePreferences,

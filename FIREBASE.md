@@ -24,7 +24,7 @@ Enable Email/Password in the existing Auth project and authorize actual preview/
 
 Only trusted server code writes banks, versions, logs, summaries and sessions. Students have focused owner reads and validated profile/preferences/bookmark/recall writes. A profile role grants no privileges. Pages use noindex metadata. All client public shells continue to load live Firebase content, so a bank update does not require hardcoded question imports.
 
-These are self-study results. Readable questions include keys; this is not proctored exam security. Flashcard ratings do not affect graded accuracy. Ambiguous keys/free-text wording stay provisional. Admin denominators exclude unresolved questions and show review counts. Legacy unversioned attempts remain provisional.
+These are self-study results. Readable questions include keys; this is not proctored exam security. Flashcard ratings do not affect graded accuracy. Usable answer keys are graded automatically regardless of content-review labels. Identification answers use normalized keys, common financial-statement names and configured alternatives; enumeration supports partial credit. Admin denominators exclude questions without usable keys. Legacy unversioned attempts remain provisional.
 
 ## Rules and administrator claim
 

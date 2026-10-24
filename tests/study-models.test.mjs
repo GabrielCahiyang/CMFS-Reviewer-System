@@ -22,6 +22,7 @@ const question = {
   originalNumber: '1',
   question: 'Example',
   type: 'multiple-choice',
+  choices: ['A', 'B'],
   correctAnswer: 'B',
   verificationStatus: 'verified',
 }
@@ -33,13 +34,13 @@ test('choice grading is independent of choice letters and display order', () => 
   assert.equal(gradeAnswer(question, 'B').status, 'correct')
   assert.equal(gradeAnswer(question, 'A').status, 'incorrect')
 })
-test('uncertain source keys always require review', () => {
+test('content verification labels do not prevent grading a usable answer key', () => {
   assert.equal(
     gradeAnswer({ ...question, verificationStatus: 'review-required' }, 'B').status,
-    'review-required',
+    'correct',
   )
 })
-test('identification alternatives are normalized and unknown wording is not confidently wrong', () => {
+test('identification grades approved alternatives and rejects unmatched answers', () => {
   const q = {
     ...question,
     type: 'identification',
@@ -47,7 +48,7 @@ test('identification alternatives are normalized and unknown wording is not conf
     acceptedAnswers: ['NWC'],
   }
   assert.equal(gradeAnswer(q, ' nwc ').credit, 1)
-  assert.equal(gradeAnswer(q, 'Operating funds').status, 'review-required')
+  assert.equal(gradeAnswer(q, 'Operating funds').status, 'incorrect')
 })
 test('enumeration accepts unordered approved alternatives', () => {
   const q = {
@@ -71,7 +72,7 @@ test('enumeration never rewards duplicate entries twice and supports partial cre
 test('extra enumeration entries cannot earn a perfect score', () => {
   const q = { ...question, type: 'enumeration', correctAnswer: ['Cash', 'Inventory'] }
   assert.equal(gradeAnswer(q, ['Cash', 'Inventory', 'Other']).credit, 2 / 3)
-  assert.equal(gradeAnswer(q, ['Cash', 'Inventory', 'Other']).status, 'review-required')
+  assert.equal(gradeAnswer(q, ['Cash', 'Inventory', 'Other']).status, 'partial')
 })
 test('explicit enumeration order is enforced', () => {
   const q = {

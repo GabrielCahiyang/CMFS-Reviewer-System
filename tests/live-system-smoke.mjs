@@ -4,6 +4,7 @@ import {trustedServices} from '../scripts/lib/admin-client.mjs'
 import {validatedFiles} from '../scripts/lib/seed-files.mjs'
 import {deleteApp} from 'firebase-admin/app'
 import {mkdir,writeFile} from 'node:fs/promises'
+import {canAutoGrade} from '../src/lib/study-models.ts'
 
 if(!process.argv.includes('--confirm-project')||process.argv[process.argv.indexOf('--confirm-project')+1]!=='attendit-350c6')throw new Error('Explicit project confirmation required for a disposable live smoke account.')
 if(process.env.FIREBASE_DATABASE_EMULATOR_HOST||process.env.FIREBASE_AUTH_EMULATOR_HOST)throw new Error('This command is for the confirmed live project, not an emulator.')
@@ -26,9 +27,9 @@ try{
   const session={id,categoryId,mode,contentVersion:files.categories[categoryId].contentVersion,
    settings:{mode,types:files.categories[categoryId].types,count:ids.length,randomize:false,shuffleChoices:false,instantFeedback:false,showExplanations:true,timer:false,durationMinutes:20,filter:'all'},questionIds:ids,currentQuestionIndex:0,answers:{},status:'in-progress',startedAt:1,updatedAt:1,revision:1}
   let current=(await call('/api/study/sessions',token,session)).session
-  current=(await call('/api/study/sessions',token,{...current,revision:2,answers:Object.fromEntries(ids.map(id=>[id,{value:bank[id].correctAnswer,status:'pending',credit:0,graded:false}]))})).session
+  current=(await call('/api/study/sessions',token,{...current,revision:2,answers:Object.fromEntries(ids.map(id=>[id,{value:bank[id].type==='enumeration'?bank[id].correctAnswer:Array.isArray(bank[id].correctAnswer)?bank[id].correctAnswer[0]:bank[id].correctAnswer,status:'pending',credit:0,graded:false}]))})).session
   const completed=(await call('/api/study/sessions',token,{...current,revision:3,status:'completed'})).session
-  assert.equal(completed.score,Object.values(bank).filter(q=>q.verificationStatus==='verified').length)
+  assert.equal(completed.score,Object.values(bank).filter(canAutoGrade).length)
   results.push({test:`${categoryId}: start, save all ${ids.length} answers, resume, submit and score`,passed:true,questions:ids.length,score:completed.score})
  }
  const exported=await call('/api/study/account',token)

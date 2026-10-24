@@ -1,0 +1,22 @@
+{
+  "testedAt": "2026-10-24T15:52:10.271Z",
+  "scope": "Local production build with live Firebase authentication/database, disposable account; no hosted release.",
+  "categoryId": "financial-statements",
+  "questions": 64,
+  "correct": 64,
+  "score": 64,
+  "serverIgnoredForgedScore": true,
+  "standardStatementNamesAccepted": true,
+  "savedAndExported": true,
+  "reportingEndpointAccepted": true,
+  "testTrafficExcludedFromAnalytics": true,
+  "queue": {
+    "rapidChanges": 165,
+    "localChangesMs": 19,
+    "saves": 2,
+    "latestAnswerPreserved": true,
+    "navigationImmediate": true,
+    "staleResponseIgnored": true,
+    "localDraftClearedAfterConfirmation": true
+  }
+}

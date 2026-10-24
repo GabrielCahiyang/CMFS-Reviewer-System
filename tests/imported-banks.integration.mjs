@@ -3,7 +3,7 @@ import {test} from 'node:test'
 import {readFile} from 'node:fs/promises'
 import {validatedFiles} from '../scripts/lib/seed-files.mjs'
 import {parseQuestions} from '../src/lib/question-schema.ts'
-import {gradeAnswer} from '../src/lib/study-models.ts'
+import {canAutoGrade,gradeAnswer} from '../src/lib/study-models.ts'
 const files=await validatedFiles()
 const expected={'new-reviewer':84,'cfms-questionnaire':145,'huhuhuhu-reviewer':136,'pre-finals':101,'working-capital':63,'financial-statements':64}
 test('all six banks contain all 593 keyed records and every question format',()=>{
@@ -15,7 +15,7 @@ test('all six banks contain all 593 keyed records and every question format',()=
     for(const q of questions) {
       assert.ok(q.correctAnswer.length);assert.ok(!q.question.includes('Emulator test:'))
       assert.ok(!q.question.includes('Downloaded by'));assert.ok(!q.choices?.some((c)=>/Downloaded by|Rationalization:|CORRECT ANSWER:/.test(c)))
-      if(q.verificationStatus==='verified')assert.equal(gradeAnswer(q,q.correctAnswer).status,'correct')
+      if(canAutoGrade(q))assert.equal(gradeAnswer(q,q.type==='enumeration'?q.correctAnswer:Array.isArray(q.correctAnswer)?q.correctAnswer[0]:q.correctAnswer).status,'correct')
     }
   }
   assert.equal(total,593)

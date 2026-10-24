@@ -157,14 +157,49 @@ export const normalize = (value: string) =>
     .replace(/[.,;:!?]/g, '')
     .replace(/\s+/g, ' ')
 
+const statementNames: Record<string, string> = {
+  'statement of financial position': 'balance sheet',
+  'cash flow statement': 'statement of cash flows',
+  'cash flows statement': 'statement of cash flows',
+  'statement of cash flow': 'statement of cash flows',
+  'profit and loss statement': 'income statement',
+  'statement of profit and loss': 'income statement',
+  'statement of operations': 'income statement',
+}
+export function normalizeAnswer(value: string) {
+  const normalized = normalize(value)
+  return statementNames[normalized] ?? normalized
+}
+
+/** Content-review metadata does not disable an otherwise usable answer key. */
+export function canAutoGrade(question: Question) {
+  const answers = Array.isArray(question.correctAnswer) ? question.correctAnswer : [question.correctAnswer]
+  if (!answers.length || answers.some(answer => typeof answer !== 'string' || !answer.trim())) return false
+  if (question.type === 'multiple-choice' || question.type === 'true-false') {
+    return !!question.choices?.length && answers.every(answer =>
+      question.choices!.filter(choice => normalize(choice) === normalize(answer)).length === 1)
+  }
+  return question.type === 'identification' || question.type === 'enumeration'
+}
+
+export function studyExplanation(question: Question) {
+  if (question.answerOrigin === 'generated' && question.derived &&
+    /^(Generated study question based on|Additional study question based on)/.test(question.explanation ?? '')) {
+    return question.sourcePage && question.sourcePage !== 'Not applicable'
+      ? `Based on the supplied reviewer, page ${question.sourcePage}.`
+      : 'Based on the supplied reviewer.'
+  }
+  return question.explanation
+}
+
 export function enumerationMatches(question: Question, value: string | string[]) {
   const expected = Array.isArray(question.correctAnswer)
     ? question.correctAnswer
     : [question.correctAnswer]
-  const responses = (Array.isArray(value) ? value : [value]).map(normalize).filter(Boolean)
+  const responses = (Array.isArray(value) ? value : [value]).map(normalizeAnswer).filter(Boolean)
   const used = new Set<number>()
   const matches = expected.map((answer, index) => {
-    const accepted = [answer, ...(question.alternatives?.[answer] ?? [])].map(normalize)
+    const accepted = [answer, ...(question.alternatives?.[answer] ?? [])].map(normalizeAnswer)
     const matchIndex = question.orderMatters
       ? accepted.includes(responses[index])
         ? index
@@ -181,7 +216,7 @@ export function enumerationMatches(question: Question, value: string | string[])
 }
 
 export function gradeAnswer(question: Question, value: string | string[]): Answer {
-  if (question.verificationStatus === 'review-required') {
+  if (!canAutoGrade(question)) {
     return { value, status: 'review-required', credit: 0, graded: true }
   }
   const expected = Array.isArray(question.correctAnswer)
@@ -192,34 +227,24 @@ export function gradeAnswer(question: Question, value: string | string[]): Answe
     const credit =
       result.matches.filter((match) => match.matched).length /
       Math.max(expected.length, result.responseCount, 1)
-    const knownWordings = expected
-      .flatMap((answer) => [answer, ...(question.alternatives?.[answer] ?? [])])
-      .map(normalize)
-    const ambiguous = result.extra.some((response) => !knownWordings.includes(response))
     return {
       value,
       credit,
       status:
         credit === 1
           ? 'correct'
-          : ambiguous
-            ? 'review-required'
-            : credit > 0
-              ? 'partial'
-              : 'review-required',
+          : credit > 0
+            ? 'partial'
+            : 'incorrect',
       graded: true,
     }
   }
-  const accepted = [...expected, ...(question.acceptedAnswers ?? [])].map(normalize)
-  const correct = accepted.includes(normalize(Array.isArray(value) ? value.join(' ') : value))
+  const accepted = [...expected, ...(question.acceptedAnswers ?? [])].map(normalizeAnswer)
+  const correct = accepted.includes(normalizeAnswer(Array.isArray(value) ? value.join(' ') : value))
   return {
     value,
     credit: correct ? 1 : 0,
-    status: correct
-      ? 'correct'
-      : question.type === 'identification'
-        ? 'review-required'
-        : 'incorrect',
+    status: correct ? 'correct' : 'incorrect',
     graded: true,
   }
 }

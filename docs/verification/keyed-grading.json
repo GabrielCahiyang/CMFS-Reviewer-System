@@ -1,0 +1,13 @@
+{
+  "testedAt": "2026-10-24T15:30:06.930Z",
+  "scope": "Local production build with live Firebase authentication/database, disposable account; no hosted release.",
+  "categoryId": "financial-statements",
+  "questions": 64,
+  "correct": 64,
+  "score": 64,
+  "serverIgnoredForgedScore": true,
+  "standardStatementNamesAccepted": true,
+  "savedAndExported": true,
+  "reportingEndpointAccepted": true,
+  "testTrafficExcludedFromAnalytics": true
+}

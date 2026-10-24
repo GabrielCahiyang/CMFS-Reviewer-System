@@ -1,5 +1,5 @@
 import type { ActivityEvent } from '../activity-models'
-import { gradeAnswer, type Question, type StudySession } from '../study-models'
+import { canAutoGrade, gradeAnswer, type Question, type StudySession } from '../study-models'
 
 export interface ValidatedScore {
   sessionId: string; uid: string; categoryId: string; mode: string; contentVersion: string
@@ -13,7 +13,7 @@ export function recomputeScore(uid: string, session: StudySession, questions: Re
   for (const id of session.questionIds) {
     const q = questions[id]
     const answer = session.answers?.[id]
-    if (!q || q.verificationStatus !== 'verified') { review++; questionResults[id] = { status: 'review-required', credit: 0 }; continue }
+    if (!q || !canAutoGrade(q)) { review++; questionResults[id] = { status: 'review-required', credit: 0 }; continue }
     if (session.mode === 'flashcard') { questionResults[id] = { status: 'self-assessed', credit: 0 }; continue }
     if (!answer || answer.status === 'skipped' || (typeof answer.value === 'string' ? !answer.value.trim() : !answer.value?.some(Boolean))) {
       maxScore++; skipped++; questionResults[id] = { status: 'skipped', credit: 0 }; continue

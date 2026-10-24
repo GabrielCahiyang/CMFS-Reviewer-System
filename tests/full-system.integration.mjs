@@ -9,6 +9,8 @@ import {GET as accountExport} from '../src/app/api/study/account/route.ts'
 import {adminServices} from '../src/lib/server/firebase-admin.ts'
 import {validatedFiles} from '../scripts/lib/seed-files.mjs'
 import {questionsForSession} from '../src/lib/question-presentation.ts'
+import {canAutoGrade} from '../src/lib/study-models.ts'
+const keyResponse=q=>q.type==='enumeration'?q.correctAnswer:Array.isArray(q.correctAnswer)?q.correctAnswer[0]:q.correctAnswer
 if(process.env.FIREBASE_DATABASE_EMULATOR_HOST!=='127.0.0.1:9000'||process.env.FIREBASE_AUTH_EMULATOR_HOST!=='127.0.0.1:9099'||process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!=='demo-cfms')throw new Error('Full-system testing is isolated to local demo-cfms emulators.')
 const files=await validatedFiles(),runId=String(Date.now())
 const request=(path,token,body)=>new Request('http://localhost'+path,{method:body?'POST':'GET',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})})
@@ -29,13 +31,13 @@ for(const [categoryId,bank]of Object.entries(files.banks)){
    let current=(await json(await save(request('/api/study/sessions',token,s)))).session
    await json(await log(request('/api/study/events',token,{eventId:`start-${sessionId}`,type:'session_started',categoryId,sessionId})))
    await json(await log(request('/api/study/events',token,{eventId:`view-${sessionId}`,type:'question_viewed',categoryId,sessionId,questionId:ids[0]})))
-   const answers=Object.fromEntries(ids.map(id=>[id,{value:bank[id].correctAnswer,status:mode==='flashcard'?'correct':'pending',credit:mode==='flashcard'?1:0,graded:mode==='flashcard'}]))
+   const answers=Object.fromEntries(ids.map(id=>[id,{value:keyResponse(bank[id]),status:mode==='flashcard'?'correct':'pending',credit:mode==='flashcard'?1:0,graded:mode==='flashcard'}]))
    current=(await json(await save(request('/api/study/sessions',token,{...current,revision:2,answers})))).session
    assert.equal(Object.keys(current.answers).length,ids.length)
    current=(await json(await save(request('/api/study/sessions',token,{...current,currentQuestionIndex:ids.length-1,revision:3})))).session
    await json(await log(request('/api/study/events',token,{eventId:`resume-${sessionId}`,type:'session_resumed',categoryId,sessionId})))
    const completed=(await json(await save(request('/api/study/sessions',token,{...current,revision:4,status:'completed'})))).session
-   const expected=mode==='flashcard'?ids.length:Object.values(bank).filter(q=>q.verificationStatus==='verified').length
+   const expected=mode==='flashcard'?ids.length:Object.values(bank).filter(canAutoGrade).length
    assert.equal(completed.score,expected)
    const event={eventId:`finish-${sessionId}`,type:'session_completed',categoryId,sessionId}
    await json(await log(request('/api/study/events',token,event)));await json(await log(request('/api/study/events',token,event)))
@@ -52,8 +54,8 @@ for(const [categoryId,bank]of Object.entries(files.banks)){
    session.choiceOrder=Object.fromEntries(views.map(q=>[q.id,q.choices]))
    const saved=(await json(await save(request('/api/study/sessions',token,session)))).session
    assert.deepEqual(saved.questionIds,ids)
-   const complete=(await json(await save(request('/api/study/sessions',token,{...saved,revision:2,status:'completed',answers:Object.fromEntries(views.map(q=>[q.id,{value:q.correctAnswer,status:'pending',credit:0,graded:false}]))})))).session
-   assert.equal(complete.score,views.filter(q=>q.verificationStatus==='verified').length)
+   const complete=(await json(await save(request('/api/study/sessions',token,{...saved,revision:2,status:'completed',answers:Object.fromEntries(views.map(q=>[q.id,{value:keyResponse(q),status:'pending',credit:0,graded:false}]))})))).session
+   assert.equal(complete.score,views.filter(canAutoGrade).length)
   }
   const exported=await json(await accountExport(request('/api/study/account',token)))
   assert.equal(exported.uid,uid);assert.equal(Object.keys(exported.data.sessions).length,6)

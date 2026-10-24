@@ -14,7 +14,7 @@ A financial management study system built around six PDF and Word reviewers. Stu
 - Administrator analytics, student activity, question insights, and CSV exports, protected by the `cfmsAdmin` custom claim at the API boundary.
 - Account data export, light/dark themes, responsive layouts, and a book favicon.
 
-Generated or ambiguous answer keys remain labeled for review. Unresolved questions are excluded from graded accuracy, and flashcard self-ratings do not count as graded answers. This is a self-study system: question data includes answer keys.
+Questions with usable answer keys are graded automatically, including derived study questions. Common financial-statement names and configured alternative answers are accepted. Content provenance stays in the records; it does not prevent scoring. Questions without a usable key are excluded from graded accuracy, and flashcard self-ratings do not count as graded answers. This is a self-study system: question data includes answer keys.
 
 ## Technology
 
@@ -97,6 +97,8 @@ Get-NetTCPConnection -LocalPort 3000 -State Listen
 5. Answer questions, save and exit when needed, then submit to view results and explanations.
 
 The selected source IDs and adapted presentations stay consistent after refresh and resume. Original question numbers remain visible even when the session uses a custom subset.
+
+Answer selections, feedback, flashcard navigation and question navigation update immediately in local state. Pending session changes are cached per account in the browser and sent through a background queue that combines rapid changes. Refresh restores pending drafts; final submission waits for cloud confirmation before opening results. Network failures show a retry action without locking ordinary study controls.
 
 ## Question catalog
 

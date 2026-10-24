@@ -27,7 +27,7 @@ test('trusted scoring ignores forged credit and excludes unresolved keys from it
   const q = {originalNumber:'1',question:'Question',type:'multiple-choice',choices:['yes','no'],correctAnswer:'yes',verificationStatus:'verified'}
   const s = { id:'s1',categoryId:'new-reviewer',mode:'exam',contentVersion:'v1',questionIds:['q1','q2'],status:'completed',updatedAt:2,
     answers:{q1:{value:'no',credit:1,status:'correct'},q2:{value:'anything',credit:1,status:'correct'}} }
-  const result = recomputeScore('u1',s,{q1:q,q2:{...q,verificationStatus:'review-required'}},10)
+  const result = recomputeScore('u1',s,{q1:q,q2:{...q,correctAnswer:'',verificationStatus:'review-required'}},10)
   assert.equal(result.score,0); assert.equal(result.maxScore,1); assert.equal(result.incorrect,1); assert.equal(result.review,1); assert.equal(result.provisional,true)
 })
 test('self-assessed flashcards never increase graded accuracy', () => {

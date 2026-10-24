@@ -2,7 +2,7 @@
 
 Choose an answer format in Session settings, then use **Choose questions** to select exact source questions by original number, full text or topic. Search, pagination and previews retain the selection. The session contains only those source IDs.
 
-Multiple choice and true/false presentations are generated deterministically from the pinned source bank, session ID and supplied answer key. They stay consistent after refresh and resume. The browser and trusted scorer share the adapter. Source records and verification flags remain intact; uncertain keys still require review and do not count toward graded accuracy.
+Multiple choice and true/false presentations are generated deterministically from the pinned source bank, session ID and supplied answer key. They stay consistent after refresh and resume. The browser and trusted scorer share the adapter. Source records and verification metadata remain intact. Questions with usable answer keys receive automatic credit; missing keys or keys absent from the available choices are excluded from graded accuracy.
 
 Verification: 40 unit tests, TypeScript, six emulator workflows, twelve live format/custom-selection HTTP workflows, and a live browser session selecting questions 1 and 3 through completion. See `verification/dynamic-format-flow.json` and `screenshots/dynamic-question-results.png`. Disposable test records were removed after testing.
 

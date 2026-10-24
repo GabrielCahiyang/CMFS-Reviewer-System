@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -12,8 +12,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  CloudCheck,
-  CloudOff,
   Flag,
   Grid2X2,
   Layers,
@@ -33,12 +31,14 @@ import { questionsForSession } from '@/lib/question-presentation'
 import { trackEvent, trackVisibleQuestion } from '@/lib/activity-tracker'
 import {
   Answer,
+  canAutoGrade,
   enumerationMatches,
   gradeAnswer,
   modeLabels,
   Question,
   shuffled,
   StudySession,
+  studyExplanation,
   typeLabels,
 } from '@/lib/study-models'
 import { Badge, Button, EmptyState, Input, Modal, Progress } from './ui'
@@ -57,10 +57,11 @@ export function QuizPlayer() {
   const {
     data,
     user,
-    connected,
     activeSessionId,
     loadQuestions,
-    commitSession,
+    stageSession,
+    flushSession,
+    sessionSaveError,
     toggleBookmark,
     markCard,
     setActiveSessionId,
@@ -72,7 +73,6 @@ export function QuizPlayer() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [dirty, setDirty] = useState(false)
   const [navigator, setNavigator] = useState(false)
   const [mobile, setMobile] = useState(false)
   const [finish, setFinish] = useState(false)
@@ -82,6 +82,7 @@ export function QuizPlayer() {
   const [now, setNow] = useState(Date.now())
   const [reload, setReload] = useState(0)
   const busyRef = useRef(false)
+  const sessionRef = useRef(initial)
   const timerSubmitted = useRef(false)
   const { categories } = useStudy()
   const category = categories.find((c) => c.id === session?.categoryId)
@@ -95,7 +96,8 @@ export function QuizPlayer() {
   const remaining = deadline ? Math.max(0, Math.ceil((deadline - now) / 1000)) : 0
   const expired = !!deadline && remaining === 0
   const reveal = !flashcard && !!answer?.graded && !!session?.settings.instantFeedback
-  const locked = !!answer?.graded || busy || dirty || expired
+  const locked = !!answer?.graded || busy || expired
+  const saveError = error || sessionSaveError
 
   useEffect(() => {
     if (!question || !session || session.status !== 'in-progress') return
@@ -115,8 +117,11 @@ export function QuizPlayer() {
   }, [])
 
   useEffect(() => {
-    if (initial && !dirty && !busyRef.current) setSession(initial)
-  }, [initial?.id, initial?.revision])
+    if (initial && !busyRef.current) {
+      sessionRef.current = initial
+      setSession(initial)
+    }
+  }, [initial])
 
   useEffect(() => {
     if (!session) {
@@ -166,37 +171,20 @@ export function QuizPlayer() {
     return () => clearInterval(interval)
   }, [deadline])
 
-  useEffect(() => {
-    if (!dirty) return
-    const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault()
-    }
-    window.addEventListener('beforeunload', onBeforeUnload)
-    return () => window.removeEventListener('beforeunload', onBeforeUnload)
-  }, [dirty])
-
-  async function save(next: StudySession) {
+  function save(next: StudySession) {
     if (busyRef.current) return
-    busyRef.current = true
-    setSession(next)
-    setDirty(true)
-    setBusy(true)
-    setError('')
     try {
-      const saved = await commitSession(next)
-      setSession(saved)
-      setDirty(false)
-      return saved
+      const draft = stageSession(next)
+      sessionRef.current = draft
+      setSession(draft)
+      setError('')
     } catch (err) {
       setError(friendlyError(err))
-      return undefined
-    } finally {
-      setBusy(false)
-      busyRef.current = false
     }
   }
 
   async function submitSession() {
+    const session = sessionRef.current
     if (!session || busyRef.current || session.status === 'completed') return
     const answers = Object.fromEntries(
       session.questionIds.map((id) => {
@@ -209,18 +197,27 @@ export function QuizPlayer() {
       }),
     ) as Record<string, Answer>
     const score = Object.values(answers).reduce((total, answer) => total + answer.credit, 0)
-    const saved = await save({
+    save({
       ...session,
       answers,
       score,
       status: 'completed',
       completedAt: Date.now(),
     })
-    if (saved) {
+    busyRef.current = true
+    setBusy(true)
+    try {
+      const saved = await flushSession(session.id)
       setActiveSessionId(saved.id)
       router.replace('/results')
+    } catch (err) {
+      setError(friendlyError(err))
+      timerSubmitted.current = false
+    } finally {
+      busyRef.current = false
+      setBusy(false)
+      setFinish(false)
     }
-    setFinish(false)
   }
 
   useEffect(() => {
@@ -230,25 +227,26 @@ export function QuizPlayer() {
       session &&
       session.status === 'in-progress' &&
       !busy &&
-      !dirty &&
       !timerSubmitted.current
     ) {
       timerSubmitted.current = true
       submitSession()
     }
-  }, [expired, loading, busy, dirty, session?.status])
+  }, [expired, loading, busy, session?.status])
 
-  async function respond(value: string | string[]) {
-    if (!session || !question || locked || busyRef.current) return
+  function respond(value: string | string[]) {
+    const session = sessionRef.current
+    if (!session || !question || expired || busyRef.current || session.answers?.[question.id]?.graded) return
     const checked = session.settings.instantFeedback && session.mode !== 'exam'
     const nextAnswer: Answer = checked
       ? gradeAnswer(question, value)
       : { value, status: 'pending', credit: 0, graded: false }
-    await save({ ...session, answers: { ...session.answers, [question.id]: nextAnswer } })
+    save({ ...session, answers: { ...session.answers, [question.id]: nextAnswer } })
   }
 
-  async function navigate(index: number, skipped = false) {
-    if (!session || busyRef.current || dirty || index < 0 || index >= session.questionIds.length)
+  function navigate(index: number, skipped = false) {
+    const session = sessionRef.current
+    if (!session || busyRef.current || index < 0 || index >= session.questionIds.length)
       return
     const next = { ...session, currentQuestionIndex: index }
     if (skipped && question)
@@ -256,19 +254,13 @@ export function QuizPlayer() {
         ...session.answers,
         [question.id]: { value: '', status: 'skipped', credit: 0, graded: false },
       }
-    await save(next)
+    save(next)
   }
 
-  async function recall(known: boolean) {
-    if (!session || !question || busyRef.current || dirty || !flipped) return
-    setError('')
-    busyRef.current = true
-    setBusy(true)
-    try {
-      await markCard(session.categoryId, question.id, known ? 'known' : 'again')
-      busyRef.current = false
-      setBusy(false)
-      const result = await save({
+  function recall(known: boolean) {
+    const session = sessionRef.current
+    if (!session || !question || busyRef.current || !flipped) return
+    save({
         ...session,
         currentQuestionIndex: Math.min(
           session.currentQuestionIndex + 1,
@@ -283,13 +275,10 @@ export function QuizPlayer() {
             graded: true,
           },
         },
-      })
-      if (result) setFlipped(false)
-    } catch (err) {
-      setError(friendlyError(err))
-      busyRef.current = false
-      setBusy(false)
-    }
+    })
+    setFlipped(false)
+    void markCard(session.categoryId, question.id, known ? 'known' : 'again')
+      .catch(err => setError(friendlyError(err)))
   }
 
   if (loading)
@@ -313,7 +302,7 @@ export function QuizPlayer() {
         }
       />
     )
-  if (session.status === 'completed')
+  if (session.status === 'completed' && !busy && !saveError)
     return (
       <EmptyState
         icon={<CheckCircle2 />}
@@ -348,13 +337,6 @@ export function QuizPlayer() {
     (a) => a.status !== 'skipped',
   ).length
   const marked = !!data.bookmarks[session.categoryId]?.[question.id]
-  const savingLabel = busy
-    ? connected === false
-      ? 'Waiting for connection…'
-      : 'Saving…'
-    : dirty
-      ? 'Not saved · retry below'
-      : 'Saved'
   const currentIndex = session.currentQuestionIndex
   const isLast = currentIndex === session.questionIds.length - 1
 
@@ -363,27 +345,12 @@ export function QuizPlayer() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           className="flex items-center gap-2 text-xs text-subtle hover:text-primary"
-          onClick={() => {
-            if (!dirty && !busy) router.push('/history')
-          }}
-          disabled={dirty || busy}
+          onClick={() => router.push('/history')}
+          disabled={busy}
         >
           <ArrowLeft size={14} />
           Save & exit
         </button>
-        <span
-          className={`flex items-center gap-1.5 text-[10px] ${dirty && !busy ? 'text-warning' : 'text-subtle'}`}
-          aria-live="polite"
-        >
-          {busy ? (
-            <Loader2 size={12} className="animate-spin" />
-          ) : dirty ? (
-            <CloudOff size={12} />
-          ) : (
-            <CloudCheck size={12} />
-          )}
-          {savingLabel}
-        </span>
       </div>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -409,7 +376,7 @@ export function QuizPlayer() {
           <Button
             variant="secondary"
             className="text-xs"
-            disabled={busy || dirty}
+            disabled={busy}
             onClick={() => setFinish(true)}
           >
             <Flag size={14} />
@@ -435,29 +402,20 @@ export function QuizPlayer() {
         </span>
       </div>
       <Progress value={(answeredCount / session.questionIds.length) * 100} className="h-2" />
-      {error && !busy && (
+      {saveError && !busy && (
         <div role="alert" className="rounded-xl border border-danger/20 bg-danger-soft p-4">
           <p className="text-xs leading-6 text-danger">
-            {error}
+            {saveError}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button busy={busy} className="min-h-8 text-[11px]" onClick={() => save(session)}>
+            <Button className="min-h-8 text-[11px]" onClick={async () => {
+              setError('')
+              try {
+                const saved = await flushSession(session.id)
+                if (saved.status === 'completed') router.replace('/results')
+              } catch (err) { setError(friendlyError(err)) }
+            }}>
               Retry save
-            </Button>
-            <Button
-              variant="secondary"
-              className="min-h-8 text-[11px]"
-              disabled={busy}
-              onClick={() => {
-                if (initial) {
-                  setSession(initial)
-                  setDirty(false)
-                  setError('')
-                  timerSubmitted.current = false
-                }
-              }}
-            >
-              Reload last confirmed state
             </Button>
           </div>
         </div>
@@ -470,7 +428,7 @@ export function QuizPlayer() {
           <button
             key={`${questionId}-${flipped}`}
             onClick={() => setFlipped((v) => !v)}
-            disabled={busy || dirty}
+            disabled={busy}
             className={`flip-enter flex min-h-86 w-full flex-col items-center justify-center rounded-2xl border px-6 py-10 text-center shadow-sm sm:px-14 ${flipped ? 'border-primary/25 bg-primary-soft' : 'border-line bg-surface'}`}
             aria-label={flipped ? 'Show question side' : 'Flip to reveal answer'}
           >
@@ -488,13 +446,8 @@ export function QuizPlayer() {
             {flipped && (
               <>
                 <p className="mt-5 max-w-xl text-sm leading-7 text-subtle">
-                  {question.explanation || 'No source explanation supplied.'}
+                  {studyExplanation(question) || 'No source explanation supplied.'}
                 </p>
-                {question.verificationStatus === 'review-required' && (
-                  <Badge className="mt-4 bg-warning-soft text-warning">
-                    Questionable key · verification required
-                  </Badge>
-                )}
               </>
             )}
             <span className="mt-8 flex items-center gap-2 text-[11px] text-subtle">
@@ -505,14 +458,14 @@ export function QuizPlayer() {
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Button
               variant="secondary"
-              disabled={!flipped || busy || dirty}
+              disabled={!flipped || busy}
               onClick={() => recall(false)}
             >
               <RotateCcw size={16} />
               Study again
             </Button>
             <Button
-              disabled={!flipped || busy || dirty}
+              disabled={!flipped || busy}
               onClick={() => recall(true)}
               className="border-success bg-success hover:bg-success/90"
             >
@@ -556,13 +509,6 @@ export function QuizPlayer() {
                 ? ` · p. ${question.sourcePage}`
                 : ''}
             </p>
-            {question.verificationStatus === 'review-required' && (
-              <p className="mt-3 flex items-center gap-2 rounded-lg bg-warning-soft p-3 text-xs text-warning">
-                <ShieldAlert size={15} />
-                This source answer key is flagged for verification. It will not be automatically
-                marked wrong.
-              </p>
-            )}
             {question.type === 'multiple-choice' || question.type === 'true-false' ? (
               <div className="mt-7 grid gap-3">
                 {(session.choiceOrder?.[question.id] || question.choices || []).map(
@@ -570,8 +516,9 @@ export function QuizPlayer() {
                     const selected = answer?.value === choice
                     const correct =
                       reveal &&
-                      question.correctAnswer === choice &&
-                      question.verificationStatus !== 'review-required'
+                      canAutoGrade(question) &&
+                      ((Array.isArray(question.correctAnswer) ? question.correctAnswer.includes(choice) : question.correctAnswer === choice) ||
+                        (selected && answer?.status === 'correct'))
                     const wrong = reveal && selected && answer?.status === 'incorrect'
                     return (
                       <button
@@ -706,7 +653,7 @@ export function QuizPlayer() {
         <Button
           variant="secondary"
           className="text-xs"
-          disabled={currentIndex === 0 || busy || dirty}
+          disabled={currentIndex === 0 || busy}
           onClick={() => navigate(currentIndex - 1)}
         >
           <ChevronLeft size={15} />
@@ -717,7 +664,7 @@ export function QuizPlayer() {
             <Button
               variant="ghost"
               className="text-xs"
-              disabled={busy || dirty}
+              disabled={busy}
               onClick={() =>
                 save({
                   ...session,
@@ -734,7 +681,7 @@ export function QuizPlayer() {
             <Button
               variant="ghost"
               className="text-xs"
-              disabled={busy || dirty || expired}
+              disabled={busy || expired}
               onClick={() => (isLast ? setFinish(true) : navigate(currentIndex + 1, true))}
             >
               Skip
@@ -743,7 +690,7 @@ export function QuizPlayer() {
           )}
           <Button
             className="text-xs"
-            disabled={busy || dirty || (!answer && !flashcard && !isLast)}
+            disabled={busy || (!answer && !flashcard && !isLast)}
             onClick={() => (isLast ? setFinish(true) : navigate(currentIndex + 1))}
           >
             {isLast ? 'Finish session' : 'Next question'}
@@ -783,7 +730,7 @@ export function QuizPlayer() {
                 return (
                   <button
                     key={id}
-                    disabled={busy || dirty}
+                    disabled={busy}
                     aria-label={`Question ${i + 1}, ${safeStatus}`}
                     aria-current={i === currentIndex ? 'step' : undefined}
                     onClick={() => navigate(i)}
@@ -840,9 +787,9 @@ export function QuizPlayer() {
                   <button
                     key={id}
                     aria-label={`Question ${index + 1}, ${safeStatus}`}
-                    disabled={busy || dirty}
-                    onClick={async () => {
-                      await navigate(index)
+                    disabled={busy}
+                    onClick={() => {
+                      navigate(index)
                       setNavigator(false)
                     }}
                     className={`flex aspect-square items-center justify-center rounded-xl border text-xs font-semibold ${index === currentIndex ? 'border-primary bg-primary text-on-primary' : statusColors[safeStatus]}`}
@@ -935,7 +882,7 @@ export function Feedback({
             {correct
               ? 'That’s right. Nicely done!'
               : review
-                ? 'Let’s give this one a closer look.'
+                ? canAutoGrade(question) ? 'Answer recorded.' : 'Answer key unavailable.'
                 : skipped
                   ? 'Skipped, and still worth a closer look.'
                   : partial
@@ -944,23 +891,19 @@ export function Feedback({
           </p>
           {review && (
             <p className="mt-2 text-xs leading-6">
-              This response needs manual review. It has not been confidently marked incorrect.
-              Review-required responses currently earn no automatic credit.
+              {canAutoGrade(question)
+                ? 'Retake this question to receive a score using the current answer key.'
+                : 'Your response is saved. This question has no usable answer key for automatic scoring.'}
             </p>
           )}
           {!correct && (
             <p className="mt-2 text-xs leading-6">
               <strong>
-                {question.answerOrigin === 'generated'
-                  ? 'Generated answer (review pending): '
-                  : question.verificationStatus === 'review-required'
-                  ? 'Supplied key (unverified): '
-                  : 'Answer key: '}
+                {canAutoGrade(question) ? 'Answer key: ' : 'Suggested answer: '}
               </strong>
               {value}
             </p>
           )}
-          {question.reviewNote && <p className="mt-2 text-xs leading-6">{question.reviewNote}</p>}
           {question.type === 'enumeration' && Array.isArray(answer.value) && (
             <div className="mt-3 space-y-1.5">
               {(Array.isArray(question.correctAnswer)
@@ -992,7 +935,7 @@ export function Feedback({
           )}
           {showExplanation && (
             <p className="mt-3 text-xs leading-6 opacity-90">
-              {question.explanation || 'No source explanation has been supplied for this question.'}
+              {studyExplanation(question) || 'No source explanation has been supplied for this question.'}
             </p>
           )}
           {showExplanation && question.formula && (

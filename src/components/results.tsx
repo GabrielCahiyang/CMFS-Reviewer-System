@@ -20,7 +20,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useStudy } from '@/lib/study-context'
-import { Category, modeLabels, Question, sessionStats, StudyMode } from '@/lib/study-models'
+import { Category, modeLabels, Question, sessionStats, studyExplanation, StudyMode } from '@/lib/study-models'
 import { friendlyError } from '@/lib/firebase'
 import { questionsForSession } from '@/lib/question-presentation'
 import { Badge, Button, EmptyState, Select } from './ui'
@@ -118,7 +118,7 @@ export function SessionResults({
             {flashcard
               ? 'Self-assessed recall'
               : pendingReview
-                ? 'Provisional score · review-required answers earn no automatic credit'
+                ? 'Some questions have no usable answer key'
                 : `${Number(stats.score.toFixed(2))} of ${session.questionIds.length} points earned`}
           </p>
         </div>
@@ -288,7 +288,7 @@ export function SessionResults({
                   ? question.correctAnswer.join(' · ')
                   : question.correctAnswer}
                 <br />
-                {question.explanation}
+                {studyExplanation(question)}
               </p>
             )}
           </>

@@ -4,6 +4,7 @@ import {deleteApp} from 'firebase-admin/app'
 import {trustedServices} from '../scripts/lib/admin-client.mjs'
 import {parseQuestions} from '../src/lib/question-schema.ts'
 import {questionsForSession} from '../src/lib/question-presentation.ts'
+import {canAutoGrade} from '../src/lib/study-models.ts'
 const account=JSON.parse(await readFile('seed-output/ui-test-account.json','utf8'))
 if(!account.uid.startsWith('cfms-ui-test-'))throw new Error('Only a disposable test account can run this verification.')
 const s=trustedServices(),results=[]
@@ -22,8 +23,8 @@ try{
   session.choiceOrder=Object.fromEntries(views.map(q=>[q.id,q.choices]))
   const created=await save(session)
   assert.deepEqual(created.questionIds,ids)
-  const completed=await save({...created,revision:2,status:'completed',answers:Object.fromEntries(views.map(q=>[q.id,{value:q.correctAnswer,status:'pending',credit:0,graded:false}]))})
-  assert.equal(completed.score,views.filter(q=>q.verificationStatus==='verified').length)
+  const completed=await save({...created,revision:2,status:'completed',answers:Object.fromEntries(views.map(q=>[q.id,{value:q.type==='enumeration'?q.correctAnswer:Array.isArray(q.correctAnswer)?q.correctAnswer[0]:q.correctAnswer,status:'pending',credit:0,graded:false}]))})
+  assert.equal(completed.score,views.filter(canAutoGrade).length)
   results.push({categoryId,questionFormat,selectedOriginalNumbers:views.map(q=>q.originalNumber),saved:true,submitted:true,score:completed.score})
  }
  await writeFile('docs/verification/dynamic-format-flow.json',JSON.stringify({testedAt:new Date().toISOString(),results},null,2)+'\n')
