@@ -1,6 +1,12 @@
 # Implementation status
 
-24 October 2026, Asia/Manila. All six supplied sources are imported into the live Realtime Database. See [source import and test results](SOURCE_IMPORT_REPORT.md).
+26 October 2026, Asia/Manila. The replacement import is live in Realtime Database: seven separate categories, one per supplied PDF, with 646 records (525 unique source questions). The matching 121-question PDFs are intentionally separate. Thirty-two correction decisions affect 38 records across both matching files. See [replacement audit](REPLACEMENT_IMPORT_AUDIT.md) and [production verification](verification/replacement-import.json). Earlier checklist entries below describe previous releases.
+
+- [x] Replacement source review: all 114 PDF pages extracted, two-column content separated, all numbered keys independently cross-checked with pypdf, and colored Working Capital answers inspected on rendered pages. Duplicate Reviewer 3 content matched across all 121 questions/options/keys.
+- [x] Removed the compiled title allowlist that hid unfamiliar reviewers. The provider now validates category shape and accepts every valid database category. Regression tests cover seven visible records, a future title/ID, and matching PDFs remaining separate.
+- [x] Replacement validation: 63 unit tests and six import checks covering 3,876 presentations passed. Published all seven banks atomically and verified exact read-back. Working Capital retains 39 actual printed questions, confirmed with the user after inspecting the jump from 9 to 11.
+- [x] Seven-category production verification: all 25 public routes and 16 client assets loaded; the actual database catalog parser returned seven visible entries. All seven independent Firebase start/save/resume/submit/export workflows passed at 646/646. All six pre-existing Auth accounts and user data were unchanged; the temporary test account was removed.
+- [ ] Verify production delivery: deploy the new category route shells to hosted Vercel. Native browser testing is unavailable in the current Work settings; the Figma CLI is unavailable for `figma make verify-deploy`. No remote deployment was performed.
 
 ## Implemented locally
 

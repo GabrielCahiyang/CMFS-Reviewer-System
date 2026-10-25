@@ -1,0 +1,59 @@
+{
+  "testedAt": "2026-10-25T21:47:58.812Z",
+  "scope": "Live Firebase with a local production server; no remote deployment performed.",
+  "importId": "import-8e224d48a028ab9f838d071c",
+  "sourceFiles": 7,
+  "categories": [
+    {
+      "categoryId": "reviewer-1",
+      "questions": 100,
+      "score": 100,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "reviewer-2",
+      "questions": 60,
+      "score": 60,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "reviewer-3",
+      "questions": 121,
+      "score": 121,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "numbered-reviewer",
+      "questions": 121,
+      "score": 121,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "reviewer-4",
+      "questions": 120,
+      "score": 120,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "pre-finals",
+      "questions": 85,
+      "score": 85,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "working-capital",
+      "questions": 39,
+      "score": 39,
+      "startedSavedResumedCompleted": true
+    }
+  ],
+  "totalQuestions": 646,
+  "catalogEntriesVisible": 7,
+  "corrections": 38,
+  "publicRoutesVerified": 25,
+  "clientAssetsVerified": 16,
+  "exportedSessions": 7,
+  "existingAccountsPreserved": 6,
+  "profilesAndPreferencesUnchanged": true,
+  "disposableAccountRemoved": true
+}

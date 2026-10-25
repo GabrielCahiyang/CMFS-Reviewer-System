@@ -3,7 +3,6 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { onAuthStateChanged, onIdTokenChanged, signOut, User } from 'firebase/auth'
 import { onValue, ref } from 'firebase/database'
-import { sourceCategoryTitles } from './study-categories'
 import { firebaseServices, friendlyError } from './firebase'
 import {
   initializeProfile,
@@ -23,7 +22,7 @@ import {
   StudySession,
   UserData,
 } from './study-models'
-import { parseQuestions } from './question-schema'
+import { parseCategories, parseQuestions } from './question-schema'
 import { validateSessionInput } from './session-validation'
 import { SessionDraftQueue, sessionDraftKey, type SessionDraftRecord } from './session-draft'
 import { clearActivityQueue, keepActivityFor, flushActivity, trackEvent } from './activity-tracker'
@@ -251,11 +250,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
       (value) => {
         if (!active) return
         categoriesReceived = true
-        setCategories(
-          Object.entries(value ?? {})
-            .map(([id, category]) => ({ ...category, id }))
-            .filter((category) => sourceCategoryTitles[category.id] === category.title),
-        )
+        setCategories(parseCategories(value))
         setCategoriesLoading(false)
       },
       failure,

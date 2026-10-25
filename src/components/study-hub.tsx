@@ -491,7 +491,7 @@ export function StudyHub({ page = 'dashboard' }: { page?: string }) {
             {[
               [
                 'Choose a reviewer',
-                'Each of the six categories maps to an independent source document.',
+                'Each category contains the questions from its named source document.',
               ],
               [
                 'Make it your session',

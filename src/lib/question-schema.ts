@@ -1,7 +1,25 @@
-import type { Question } from './study-models'
+import type { Category, Question } from './study-models'
 
 export const safeId = (value: unknown): value is string =>
   typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value)
+
+/** Validate the catalog's shape without tying visibility to compiled-in titles. */
+export function parseCategories(value: unknown): Category[] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return []
+  return Object.entries(value).flatMap(([id, raw]) => {
+    if (!safeId(id) || !raw || typeof raw !== 'object' || Array.isArray(raw)) return []
+    const category = raw as Category
+    if (typeof category.title !== 'string' || !category.title.trim() ||
+      typeof category.description !== 'string' || typeof category.sourceDocument !== 'string' ||
+      typeof category.icon !== 'string' || typeof category.color !== 'string' ||
+      !Number.isInteger(category.questionCount) || category.questionCount < 0 ||
+      !Array.isArray(category.types) || !category.types.length ||
+      !category.types.every(type => ['multiple-choice', 'true-false', 'identification', 'enumeration'].includes(type)) ||
+      !Array.isArray(category.enabledModes) || !category.enabledModes.length ||
+      !category.enabledModes.every(mode => ['practice', 'exam', 'flashcard', 'mixed'].includes(mode))) return []
+    return [{ ...category, id }]
+  })
+}
 
 export function stringList(value: unknown): string[] {
   const values = Array.isArray(value) ? value : value && typeof value === 'object' ? Object.values(value) : []
@@ -28,5 +46,7 @@ export function parseQuestions(value: unknown, categoryId: string): Question[] {
       throw new Error(`Question ${id} has an unresolved answer key.`)
     return { ...q, id, categoryId, correctAnswer, ...(choices.length ? { choices } : {}),
       acceptedAnswers: stringList(q.acceptedAnswers) }
-  }).sort((a,b) => a.originalNumber.localeCompare(b.originalNumber, undefined, { numeric: true }))
+  // IDs encode document sequence. Printed defects such as "10-102" and "1117"
+  // remain visible without moving those questions to the wrong part of a session.
+  }).sort((a,b) => a.id.localeCompare(b.id, undefined, { numeric: true }))
 }

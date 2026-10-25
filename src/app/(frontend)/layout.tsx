@@ -10,7 +10,7 @@ const defaultTitle = 'CFMS Study Hub'
 const title = makeSiteSettings.title ?? defaultTitle
 const description =
   makeSiteSettings.description ??
-  'A focused financial management study platform. Six reviewers, flexible study modes, and one question at a time.'
+  'A focused financial management study platform. Source reviewers, flexible study modes, and one question at a time.'
 const favicon = makeSiteSettings.icons?.icon || '/book-icon.svg'
 const socialImage = makeSiteSettings.openGraph?.image
 const googleAnalyticsId = sanitizeHtmlAttribute(makeSiteSettings.analytics?.googleAnalyticsId)

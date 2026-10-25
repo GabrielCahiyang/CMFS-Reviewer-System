@@ -12,8 +12,6 @@ const sources=[]
 for(const source of manifest.sources)sources.push({...source,checksum:hash(await readFile(path.join(sourceDir,source.filename))),extractionReviewed:false})
 await writeFile('seed-output/manifest.json',JSON.stringify({importId:`import-${hash(sources).slice(0,24)}`,sources,reports:[]},null,2))
 function run(binary,args){const result=spawnSync(binary,args,{stdio:'inherit'});if(result.status!==0)throw new Error('Source extraction/validation failed; no database changes were made.')}
-run(python,['scripts/inspect-source-files.py',sourceDir])
-run(python,['scripts/read-highlight-keys.py',sourceDir])
-run(python,['scripts/normalize-reviewer-sources.py'])
-run(process.execPath,['scripts/finalize-source-import.mjs'])
+run(python,['scripts/extract-replacement-reviewers.py',sourceDir])
+run(process.execPath,['scripts/finalize-replacement-import.mjs'])
 run(process.execPath,['scripts/validate-question-banks.mjs'])

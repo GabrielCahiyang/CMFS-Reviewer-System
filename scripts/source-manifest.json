@@ -1,10 +1,12 @@
 {
   "sources": [
-    { "categoryId": "new-reviewer", "title": "NEW REVIEWER", "filename": "NEW REVIEWER.docx", "expectedCount": 60, "icon": "book", "color": "indigo" },
-    { "categoryId": "cfms-questionnaire", "title": "CFMS Questionnaire", "filename": "CFMS-Questionnaire (1).docx", "expectedCount": 121, "icon": "clipboard", "color": "blue" },
-    { "categoryId": "huhuhuhu-reviewer", "title": "HUHUHUHU Reviewer", "filename": "HUHUHUHU (1).docx", "icon": "layers", "color": "purple" },
-    { "categoryId": "pre-finals", "title": "Pre-Finals Practice & Recitation", "filename": "Practice-Questions-Pre-Finals_Answered_Familiar_Bisaya-English.pdf", "icon": "target", "color": "green" },
-    { "categoryId": "working-capital", "title": "Working Capital & Cash Management", "filename": "Working Capital Management and Cash Management Answers (1).pdf", "highlightedAnswers": true, "icon": "wallet", "color": "orange" },
-    { "categoryId": "financial-statements", "title": "Financial Statements Fundamentals", "filename": "basic-understanding-of-a-companys-financials (2).pdf", "referenceOnly": true, "icon": "chart", "color": "teal" }
-  ]
+    { "categoryId": "reviewer-1", "title": "Reviewer 1 · Financial Management", "filename": "reviewer 1.pdf", "expectedCount": 100, "icon": "book", "color": "indigo", "sourceIndex": 1 },
+    { "categoryId": "reviewer-2", "title": "Reviewer 2 · Core Concepts", "filename": "reviewer 2.pdf", "expectedCount": 60, "icon": "brain", "color": "blue", "sourceIndex": 2 },
+    { "categoryId": "reviewer-3", "title": "Reviewer 3 · CFMS Questionnaire", "filename": "reviewer 3.pdf", "expectedCount": 121, "icon": "clipboard", "color": "purple", "sourceIndex": 3 },
+    { "categoryId": "numbered-reviewer", "title": "5_6206280459148598165 · CFMS Reviewer", "filename": "5_6206280459148598165.pdf", "expectedCount": 121, "icon": "clipboard", "color": "blue", "sourceIndex": 4, "matchesCategory": "reviewer-3" },
+    { "categoryId": "reviewer-4", "title": "Reviewer 4 · Concepts & Problems", "filename": "reviewer 4.pdf", "expectedCount": 120, "icon": "chart", "color": "rose", "sourceIndex": 5 },
+    { "categoryId": "pre-finals", "title": "Pre-Finals Practice & Recitation", "filename": "Practice-Questions-Pre-Finals_Answered_Familiar_Bisaya-English (1).pdf", "expectedCount": 85, "icon": "graduation", "color": "green", "sourceIndex": 6 },
+    { "categoryId": "working-capital", "title": "Working Capital & Cash Management", "filename": "Working Capital Management and Cash Management Answers (2).pdf", "expectedCount": 39, "highlightedAnswers": true, "icon": "wallet", "color": "orange", "sourceIndex": 7 }
+  ],
+  "duplicateSources": []
 }

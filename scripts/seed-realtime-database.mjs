@@ -73,7 +73,13 @@ try {
             updates[`questions/${id}`] = bank; updates[`categories/${id}`] = files.categories[id]
           }
           updates[`sourceImports/${files.importId}`] = { status: 'applied', appliedAt: Date.now(), actor: 'trusted-admin-sdk', payloadHash: files.payloadHash,
-            sources: files.manifest.sources, counts: Object.fromEntries(Object.entries(files.banks).map(([id,b]) => [id,Object.keys(b).length])) }
+            sources: files.manifest.sources,
+            ...(files.manifest.duplicateSources ? { duplicateSources: files.manifest.duplicateSources } : {}),
+            ...(files.manifest.matchingSources?.length ? { matchingSources: files.manifest.matchingSources } : {}),
+            ...(files.manifest.answerKeyPolicy ? { answerKeyPolicy: files.manifest.answerKeyPolicy } : {}),
+            ...(files.manifest.corrections?.length ? { corrections: files.manifest.corrections } : {}),
+            ...(files.manifest.keyConflicts?.length ? { sourceAmbiguities: files.manifest.keyConflicts } : {}),
+            counts: Object.fromEntries(Object.entries(files.banks).map(([id,b]) => [id,Object.keys(b).length])) }
           // One atomic publish: all six banks, actual counts and import metadata become visible together.
           await base.update(updates)
           console.log(`Published ${files.importId}. Backup: ${backupPath}. Run pnpm seed:verify.`)

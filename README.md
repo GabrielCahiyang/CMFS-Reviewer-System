@@ -1,6 +1,6 @@
 # CFMS Study Hub
 
-A financial management study system built around six PDF and Word reviewers. Students can practice, take exams, study flashcards, choose specific questions, and save their progress with Firebase Authentication and Realtime Database.
+A financial management study system with a separate category for each of seven supplied PDFs. Students can practice, take exams, study flashcards, choose specific questions, and save their progress with Firebase Authentication and Realtime Database.
 
 ## Features
 
@@ -102,19 +102,20 @@ Answer selections, feedback, flashcard navigation and question navigation update
 
 ## Question catalog
 
-The recorded live catalog contains **593 questions** across six categories. It includes the original imported questions plus clearly labeled derived study material; the totals below are not counts of originals alone.
+The replacement catalog contains **646 question records across seven separate categories**, one per supplied PDF. The numbered PDF repeats 121 Reviewer 3 questions and is intentionally kept as a separate reviewer. There are 525 unique source questions; no extra generated questions are included.
 
 | Category | Questions |
 | --- | ---: |
-| NEW REVIEWER | 84 |
-| CFMS Questionnaire | 145 |
-| HUHUHUHU Reviewer | 136 |
-| Pre-Finals Practice & Recitation | 101 |
-| Working Capital & Cash Management | 63 |
-| Financial Statements Fundamentals | 64 |
-| **Total** | **593** |
+| Reviewer 1 · Financial Management | 100 |
+| Reviewer 2 · Core Concepts | 60 |
+| Reviewer 3 · CFMS Questionnaire | 121 |
+| 5_6206280459148598165 · CFMS Reviewer | 121 |
+| Reviewer 4 · Concepts & Problems | 120 |
+| Pre-Finals Practice & Recitation | 85 |
+| Working Capital & Cash Management | 39 |
+| **Total** | **646** |
 
-All 425 original questions from the five question documents were preserved. The Financial Statements PDF is a teaching reference used to prepare derived questions. See [source import findings](docs/SOURCE_IMPORT_REPORT.md), [catalog additions](docs/ALL_CATEGORY_FORMATS.md), and [dynamic formats](docs/DYNAMIC_QUESTION_FORMATS.md) for provenance, source numbering defects, review flags, and verification evidence.
+The user authorized correcting clear errors in the supplied keys. Thirty-two correction decisions affect 38 records because both matching PDFs retain the same six applicable corrections. Original keys and complete before/after records are retained. See the [replacement import audit](docs/REPLACEMENT_IMPORT_AUDIT.md) for corrections, source numbering defects, matching files and retained ambiguities. Earlier import reports describe the retired catalog. [Dynamic formats](docs/DYNAMIC_QUESTION_FORMATS.md) continue to adapt the source questions without adding question records.
 
 ### Import workflow
 

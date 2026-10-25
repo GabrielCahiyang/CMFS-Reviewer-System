@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { StudyHub } from '@/components/study-hub'
+import { sourceCategoryTitles } from '@/lib/study-categories'
 
 const pages = [
   'dashboard',
@@ -19,12 +20,7 @@ const pages = [
   'study-admin/students',
   'study-admin/activity',
   'study-admin/questions',
-  'categories/new-reviewer',
-  'categories/cfms-questionnaire',
-  'categories/huhuhuhu-reviewer',
-  'categories/pre-finals',
-  'categories/working-capital',
-  'categories/financial-statements',
+  ...Object.keys(sourceCategoryTitles).map(id => `categories/${id}`),
 ]
 
 export const dynamicParams = false

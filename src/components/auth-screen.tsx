@@ -145,7 +145,7 @@ export function AuthScreen({ screen }: { screen: 'login' | 'register' | 'forgot-
           </div>
           <div className="space-y-3">
             {[
-              'Six focused financial management reviewers',
+              'Focused financial management reviewers',
               'Practice your way, at your own pace',
               'Your progress, wherever you study',
             ].map((text) => (

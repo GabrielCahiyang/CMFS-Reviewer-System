@@ -1,5 +1,7 @@
 # Source import and live verification
 
+This is the historical import report for the retired catalog. The current 26 October replacement catalog is documented in [REPLACEMENT_IMPORT_AUDIT.md](REPLACEMENT_IMPORT_AUDIT.md).
+
 Imported into `attendit-350c6` Realtime Database on 24 October 2026 (Asia/Manila).
 
 | Source | Imported questions | Source-verified | Review required |
