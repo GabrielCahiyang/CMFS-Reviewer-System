@@ -1,0 +1,7 @@
+{
+  "sources": [
+    { "categoryId": "chra-part-1", "title": "CHRA Mock Examination · Part 1", "filename": "CHRA-MOCK-EXAMINATION-PART-I.docx", "expectedCount": 100, "icon": "book", "color": "indigo", "part": 1 },
+    { "categoryId": "chra-part-2", "title": "CHRA Mock Examination · Part 2 · Situational", "filename": "CHRA-MOCK-EXAMINATION-PART-2.docx", "expectedCount": 100, "icon": "brain", "color": "green", "part": 2 },
+    { "categoryId": "chra-part-3", "title": "CHRA Mock Examination · Part 3 · Labor Code", "filename": "CHRA-MOCK-EXAMINATION-PART-3.docx", "expectedCount": 100, "icon": "clipboard", "color": "purple", "part": 3 }
+  ]
+}

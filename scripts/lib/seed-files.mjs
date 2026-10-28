@@ -1,16 +1,19 @@
 import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { hash, validateBank } from './import-core.mjs'
 
-export async function validatedFiles() {
-  const manifest = JSON.parse(await readFile('seed-output/manifest.json','utf8'))
-  const categories = JSON.parse(await readFile('seed-output/categories.json','utf8'))
+export async function validatedFiles({ directory = 'seed-output', sourceManifest = 'scripts/source-manifest.json' } = {}) {
+  const manifest = JSON.parse(await readFile(join(directory, 'manifest.json'),'utf8'))
+  const categories = JSON.parse(await readFile(join(directory, 'categories.json'),'utf8'))
   const banks = {}, errors = []
-  const expected = JSON.parse(await readFile('scripts/source-manifest.json','utf8')).sources
+  const expected = JSON.parse(await readFile(sourceManifest,'utf8')).sources
+  if (JSON.stringify(Object.keys(categories).sort()) !== JSON.stringify(expected.map(s => s.categoryId).sort()))
+    throw new Error('Category set does not match the source manifest.')
   for (const source of expected) {
     const entry = manifest.sources.find((s) => s.categoryId === source.categoryId)
     if (!entry || !entry.checksum) { errors.push(`${source.categoryId}: source checksum missing.`); continue }
     if (entry.extractionReviewed !== true) errors.push(`${source.categoryId}: extractionReviewed must be true after source-by-source review.`)
-    const bank = JSON.parse(await readFile(`seed-output/questions/${source.categoryId}.json`,'utf8'))
+    const bank = JSON.parse(await readFile(join(directory, 'questions', `${source.categoryId}.json`),'utf8'))
     const qa = validateBank(bank,source)
     errors.push(...qa.errors.map((e) => `${source.categoryId}: ${e}`))
     const report = manifest.reports.find((r) => r.categoryId === source.categoryId)

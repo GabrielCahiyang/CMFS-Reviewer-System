@@ -1,0 +1,33 @@
+{
+  "testedAt": "2026-10-28T11:50:21.880Z",
+  "scope": "Live Firebase with a local production build; hosted deployment is separate.",
+  "importId": "import-2e03e9ba74de7da9847d5415",
+  "catalogEntriesVisible": 10,
+  "categories": [
+    {
+      "categoryId": "chra-part-1",
+      "questions": 100,
+      "score": 100,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "chra-part-2",
+      "questions": 100,
+      "score": 100,
+      "startedSavedResumedCompleted": true
+    },
+    {
+      "categoryId": "chra-part-3",
+      "questions": 100,
+      "score": 100,
+      "startedSavedResumedCompleted": true
+    }
+  ],
+  "totalNewQuestions": 300,
+  "publicRoutesVerified": 28,
+  "clientAssetsVerified": 16,
+  "exportedSessions": 3,
+  "existingAccountsPreserved": 11,
+  "existingUserRecordsUnchanged": true,
+  "disposableAccountRemoved": true
+}

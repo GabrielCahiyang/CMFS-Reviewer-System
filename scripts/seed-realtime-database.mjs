@@ -6,11 +6,13 @@ import { fieldDiff, hash, stableJson, safeKey } from './lib/import-core.mjs'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
 const command = args[0] ?? 'preview'
-const option = (key) => args[args.indexOf(key) + 1]
+const option = key => args.includes(key) ? args[args.indexOf(key) + 1] : undefined
 let services
 try {
   if (!['preview','apply','verify','rollback'].includes(command)) throw new Error('Use preview, apply, verify, or rollback.')
-  const files = command === 'rollback' ? undefined : await validatedFiles()
+  const files = command === 'rollback' ? undefined : await validatedFiles({
+    directory: option('--input-directory'), sourceManifest: option('--source-manifest'),
+  })
   services = trustedServices()
   const base = services.database.ref('cfms')
   if (command === 'rollback') {
@@ -80,7 +82,7 @@ try {
             ...(files.manifest.corrections?.length ? { corrections: files.manifest.corrections } : {}),
             ...(files.manifest.keyConflicts?.length ? { sourceAmbiguities: files.manifest.keyConflicts } : {}),
             counts: Object.fromEntries(Object.entries(files.banks).map(([id,b]) => [id,Object.keys(b).length])) }
-          // One atomic publish: all six banks, actual counts and import metadata become visible together.
+          // Publish only the declared banks and metadata together; other categories and user data stay intact.
           await base.update(updates)
           console.log(`Published ${files.importId}. Backup: ${backupPath}. Run pnpm seed:verify.`)
         } finally { await lock.remove() }

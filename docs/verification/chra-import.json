@@ -1,0 +1,17 @@
+{
+  "testedAt": "2026-10-28T11:47:26.786Z",
+  "importId": "import-2e03e9ba74de7da9847d5415",
+  "newCategories": {
+    "chra-part-1": 100,
+    "chra-part-2": 100,
+    "chra-part-3": 100
+  },
+  "totalCategories": 10,
+  "totalQuestions": 946,
+  "existingCategoryCount": 7,
+  "existingAccountsPreserved": 11,
+  "existingCfmsRecordsUnchanged": true,
+  "exactLiveReadBack": true,
+  "backup": "private-backups/chra-before-1793188033212.json",
+  "scope": "Live database publication only; application deployment is separate."
+}

@@ -1,6 +1,6 @@
 # CFMS Study Hub
 
-A financial management study system with a separate category for each of seven supplied PDFs. Students can practice, take exams, study flashcards, choose specific questions, and save their progress with Firebase Authentication and Realtime Database.
+A study system with ten separate categories from seven financial management PDFs and three CHRA examination documents. Students can practice, take exams, study flashcards, choose specific questions, and save their progress with Firebase Authentication and Realtime Database.
 
 ## Features
 
@@ -102,7 +102,7 @@ Answer selections, feedback, flashcard navigation and question navigation update
 
 ## Question catalog
 
-The replacement catalog contains **646 question records across seven separate categories**, one per supplied PDF. The numbered PDF repeats 121 Reviewer 3 questions and is intentionally kept as a separate reviewer. There are 525 unique source questions; no extra generated questions are included.
+The catalog contains **946 question records across ten separate categories**, one per supplied document. The numbered PDF repeats 121 Reviewer 3 questions and is intentionally kept as a separate reviewer. The CHRA documents add 300 source questions; no extra generated question records are included.
 
 | Category | Questions |
 | --- | ---: |
@@ -113,9 +113,14 @@ The replacement catalog contains **646 question records across seven separate ca
 | Reviewer 4 · Concepts & Problems | 120 |
 | Pre-Finals Practice & Recitation | 85 |
 | Working Capital & Cash Management | 39 |
-| **Total** | **646** |
+| CHRA Mock Examination · Part 1 | 100 |
+| CHRA Mock Examination · Part 2 · Situational | 100 |
+| CHRA Mock Examination · Part 3 · Labor Code | 100 |
+| **Total** | **946** |
 
 The user authorized correcting clear errors in the supplied keys. Thirty-two correction decisions affect 38 records because both matching PDFs retain the same six applicable corrections. Original keys and complete before/after records are retained. See the [replacement import audit](docs/REPLACEMENT_IMPORT_AUDIT.md) for corrections, source numbering defects, matching files and retained ambiguities. Earlier import reports describe the retired catalog. [Dynamic formats](docs/DYNAMIC_QUESTION_FORMATS.md) continue to adapt the source questions without adding question records.
+
+CHRA Part 3 has 100 supplied keys. Parts 1 and 2 have no printed keys; their 200 answers were authored during review and recorded separately from source-provided answers. Six source defects were corrected with an audit, including two night-overtime questions with a missing correct choice. See the [CHRA import audit](docs/CHRA_IMPORT_AUDIT.md). Existing accounts, study records and the seven earlier banks were preserved.
 
 ### Import workflow
 
@@ -134,6 +139,18 @@ pnpm seed:verify
 ```
 
 Existing answer changes require the additional importer approval flag described in the [import runbook](docs/DATA_IMPORT_RUNBOOK.md). The pipeline validates all banks, previews differences, backs up touched data, publishes atomically, and retains version archives for saved sessions. Raw documents, staging output, and backups must stay private.
+
+The additive CHRA import uses `scripts/chra-source-manifest.json` and its own staging directory so the PDF artifact remains unchanged:
+
+```powershell
+python scripts/extract-chra-documents.py C:/path/to/source-documents
+node scripts/finalize-chra-import.mjs
+node scripts/seed-realtime-database.mjs preview --input-directory seed-output/chra-2026-10-28 --source-manifest scripts/chra-source-manifest.json
+# After reviewing that preview, publish with preservation checks and exact live read-back:
+node scripts/publish-chra-import.mjs --confirm-live-import
+```
+
+Use the trusted Firebase server credential setup described above. Never commit source files, credential JSON, staging output or private backups. After adding a new category ID, include its static route shell in `src/lib/study-categories.ts` and redeploy the app so direct category links work on the hosted build.
 
 ## Administration and data
 

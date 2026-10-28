@@ -1,4 +1,4 @@
-// Category route shells for the current reviewed PDF import.
+// Static category route shells. Actual content is loaded from Firebase.
 // Content, counts, question types, and progress are read from Firebase.
 export const sourceCategoryTitles: Record<string, string> = {
   'reviewer-1': 'Reviewer 1 · Financial Management',
@@ -8,4 +8,7 @@ export const sourceCategoryTitles: Record<string, string> = {
   'reviewer-4': 'Reviewer 4 · Concepts & Problems',
   'pre-finals': 'Pre-Finals Practice & Recitation',
   'working-capital': 'Working Capital & Cash Management',
+  'chra-part-1': 'CHRA Mock Examination · Part 1',
+  'chra-part-2': 'CHRA Mock Examination · Part 2 · Situational',
+  'chra-part-3': 'CHRA Mock Examination · Part 3 · Labor Code',
 }

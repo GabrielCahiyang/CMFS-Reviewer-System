@@ -1,5 +1,14 @@
 # Implementation status
 
+28 October 2026, Asia/Manila. Added three separate CHRA DOCX categories with 100 questions each. The live database now has ten categories and 946 records. Parts 1–2 have 200 authored missing keys; Part 3 retains all 100 printed keys. Six clear source defects have before/after audit records. See [CHRA audit](CHRA_IMPORT_AUDIT.md) and [live import verification](verification/chra-import.json).
+
+- [x] Exact live read-back confirmed all 300 added questions. Seven existing banks, all other pre-existing CFMS records and 11 existing Auth accounts were unchanged.
+- [x] Source and grading verification passed: 63 unit tests plus nine integration checks covering the original PDFs and CHRA documents. Every CHRA question was tested across six presentations.
+- [x] Vercel production build, TypeScript, cold-start and packaging checks passed. All 28 public routes and 16 client assets loaded locally. Three full 100-question start/save/resume/submit/export workflows passed using live Firebase. Temporary account removed; existing user records unchanged. See [production verification](verification/chra-production.json).
+- [ ] Verify production delivery: redeploy the app to hosted Vercel so the three new static category detail routes are available. Figma CLI and native browser verification remain unavailable in this environment. No hosted deployment was performed.
+
+Earlier release history follows.
+
 26 October 2026, Asia/Manila. The replacement import is live in Realtime Database: seven separate categories, one per supplied PDF, with 646 records (525 unique source questions). The matching 121-question PDFs are intentionally separate. Thirty-two correction decisions affect 38 records across both matching files. See [replacement audit](REPLACEMENT_IMPORT_AUDIT.md) and [production verification](verification/replacement-import.json). Earlier checklist entries below describe previous releases.
 
 - [x] Replacement source review: all 114 PDF pages extracted, two-column content separated, all numbered keys independently cross-checked with pypdf, and colored Working Capital answers inspected on rendered pages. Duplicate Reviewer 3 content matched across all 121 questions/options/keys.
